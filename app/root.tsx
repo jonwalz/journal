@@ -6,7 +6,10 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  isRouteErrorResponse,
+  useRouteError,
 } from "@remix-run/react";
+import { ErrorBoundary as ErrorBoundaryComponent } from "./components/ErrorBoundary";
 import type { LinksFunction } from "@remix-run/node";
 
 import styles from "./tailwind.css?url";
@@ -31,6 +34,23 @@ export const loader = async ({ request }: { request: Request }) => {
   const theme = await themeCookie.parse(request.headers.get("Cookie"));
   return json({ theme: theme || "light" });
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  
+  return (
+    <html lang="en">
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <ErrorBoundaryComponent />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
 
 export default function App() {
   const data = useLoaderData<typeof loader>();
