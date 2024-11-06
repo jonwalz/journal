@@ -1,17 +1,18 @@
 import { type MetaFunction } from "@remix-run/node";
-import ToggleThemeButton from "~/components/ToggleThemeButton";
+import Navigation from "~/components/Navigation";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "My Remix App" },
+    { name: "description", content: "A modern web application built with Remix" },
   ];
 };
 
 export default function Index() {
   return (
-    <nav className="fixed left-0 top-0 z-20 mx-auto flex h-[88px] w-full items-center border-b-4 border-border dark:border-darkNavBorder bg-white dark:bg-secondaryBlack px-5 m500:h-16 ">
-      <ToggleThemeButton />
-    </nav>
+    <main className="min-h-screen bg-background dark:bg-darkBackground">
+      <Navigation />
+      {/* Add your main content here */}
+    </main>
   );
 }
