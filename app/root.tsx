@@ -38,6 +38,7 @@ export const loader = async ({ request }: { request: Request }) => {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  const data = useLoaderData<typeof loader>();
   
   return (
     <html lang="en">
@@ -46,8 +47,12 @@ export function ErrorBoundary() {
         <Links />
       </head>
       <body>
-        <ErrorBoundaryComponent />
-        <Scripts />
+        <ThemeProvider theme={data.theme}>
+          <MainLayout>
+            <ErrorBoundaryComponent error={isRouteErrorResponse(error) ? new Error(error.data) : error instanceof Error ? error : undefined} />
+          </MainLayout>
+          <Scripts />
+        </ThemeProvider>
       </body>
     </html>
   );
@@ -57,7 +62,7 @@ export default function App() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <html lang="en" className={data.theme}>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -66,10 +71,12 @@ export default function App() {
       </head>
       <body>
         <ThemeProvider theme={data.theme}>
-          <Outlet />
+          <MainLayout>
+            <Outlet />
+          </MainLayout>
+          <ScrollRestoration />
+          <Scripts />
         </ThemeProvider>
-        <ScrollRestoration />
-        <Scripts />
       </body>
     </html>
   );
