@@ -1,7 +1,14 @@
-export type Theme = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark';
+
+export interface ThemeConfig {
+  defaultTheme: ThemeMode;
+  cookieName: string;
+  storageKey: string;
+}
 
 export interface ThemeContextValue {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
   toggleTheme: () => void;
+  isDark: boolean;
 }
