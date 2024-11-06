@@ -1,16 +1,22 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useFetcher } from "@remix-run/react";
+import type { Theme, ThemeContextValue } from "./theme.types";
+import { config } from "~/config";
 
-const ThemeContext = createContext<[string, () => void]>(["light", () => {}]);
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: config.theme.defaultTheme,
+  setTheme: () => {},
+  toggleTheme: () => {},
+});
 
 export const ThemeProvider = ({
   children,
   theme: initialTheme,
 }: {
   children: React.ReactNode;
-  theme: string;
+  theme: Theme;
 }) => {
-  const [theme, setTheme] = useState(initialTheme);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -30,7 +36,7 @@ export const ThemeProvider = ({
   };
 
   return (
-    <ThemeContext.Provider value={[theme, toggleTheme]}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

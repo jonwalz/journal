@@ -13,7 +13,8 @@ import { ErrorBoundary as ErrorBoundaryComponent } from "./components/ErrorBound
 import type { LinksFunction } from "@remix-run/node";
 
 import styles from "./tailwind.css?url";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeProvider } from "./features/theme/ThemeProvider";
+import { MainLayout } from "./layouts/MainLayout";
 import { themeCookie } from "./utils/theme.server";
 
 export const links: LinksFunction = () => [
