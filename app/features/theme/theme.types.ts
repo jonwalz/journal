@@ -1,4 +1,4 @@
-export type ThemeMode = 'light' | 'dark';
+export type ThemeMode = "light" | "dark";
 
 export interface ThemeConfig {
   defaultTheme: ThemeMode;
@@ -10,5 +10,4 @@ export interface ThemeContextValue {
   theme: ThemeMode;
   setTheme: (theme: ThemeMode) => void;
   toggleTheme: () => void;
-  isDark: boolean;
 }

@@ -2,7 +2,7 @@ import { Button } from "../ui/button";
 import { useTheme } from "../ThemeProvider";
 
 export default function ToggleThemeButton() {
-  const [theme, toggleTheme] = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <Button

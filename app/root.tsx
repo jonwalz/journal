@@ -6,16 +6,13 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  isRouteErrorResponse,
-  useRouteError,
 } from "@remix-run/react";
-import { ErrorBoundary as ErrorBoundaryComponent } from "./components/ErrorBoundary";
 import type { LinksFunction } from "@remix-run/node";
 
 import styles from "./tailwind.css?url";
-import { ThemeProvider } from "./features/theme/ThemeProvider";
 import { MainLayout } from "./layouts/MainLayout";
 import { themeCookie } from "./utils/theme.server";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -35,28 +32,6 @@ export const loader = async ({ request }: { request: Request }) => {
   const theme = await themeCookie.parse(request.headers.get("Cookie"));
   return json({ theme: theme || "light" });
 };
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-  const data = useLoaderData<typeof loader>();
-  
-  return (
-    <html lang="en">
-      <head>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <ThemeProvider theme={data.theme}>
-          <MainLayout>
-            <ErrorBoundaryComponent error={isRouteErrorResponse(error) ? new Error(error.data) : error instanceof Error ? error : undefined} />
-          </MainLayout>
-          <Scripts />
-        </ThemeProvider>
-      </body>
-    </html>
-  );
-}
 
 export default function App() {
   const data = useLoaderData<typeof loader>();

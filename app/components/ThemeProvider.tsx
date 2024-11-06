@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useFetcher } from "@remix-run/react";
-import type { Theme, ThemeContextValue } from "./theme.types";
 import { config } from "~/config";
+import { ThemeContextValue } from "~/features/theme/theme.types";
+import { Theme } from "~/types";
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: config.theme.defaultTheme,

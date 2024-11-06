@@ -1,6 +1,4 @@
-export interface Theme {
-  theme: 'light' | 'dark';
-}
+export type Theme = "light" | "dark";
 
 export interface MetaConfig {
   title: string;

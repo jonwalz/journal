@@ -1,5 +1,5 @@
-import { Button } from "~/shared/components/ui/button";
-import { useTheme } from "./ThemeProvider";
+import { useTheme } from "~/components/ThemeProvider";
+import { Button } from "~/components/ui/button";
 
 export default function ToggleThemeButton() {
   const { theme, toggleTheme } = useTheme();
