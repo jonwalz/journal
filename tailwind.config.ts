@@ -49,6 +49,8 @@ const config = {
         mainAccent: "#4d80e6",
         overlay: "rgba(0,0,0,0.8)",
         bg: "#dfe5f2",
+        background: "#dfe5f2",
+        foreground: "#fff",
         text: "#000",
         border: "#000",
         darkBg: "#272933",

@@ -7,7 +7,7 @@ export default function ToggleThemeButton() {
   return (
     <Button
       onClick={toggleTheme}
-      className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+      className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 bg-white dark:bg-secondaryBlack"
     >
       {theme === "light" ? "🌙" : "☀️"}
     </Button>
