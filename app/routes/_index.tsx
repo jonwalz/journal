@@ -1,5 +1,4 @@
 import { type MetaFunction } from "@remix-run/node";
-import Navigation from "../components/Navigation";
 import Article from "../components/Article";
 
 export const meta: MetaFunction = () => {
@@ -14,8 +13,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   return (
-    <main className="min-h-screen">
-      <Navigation />
+    <main>
       <Article />
     </main>
   );

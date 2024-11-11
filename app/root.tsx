@@ -13,8 +13,6 @@ import styles from "./tailwind.css?url";
 import { MainLayout } from "./layouts/MainLayout";
 import { themeCookie } from "./utils/theme.server";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { SidebarProvider } from "./components/ui/sidebar";
-import { AppSidebar } from "./components/Sidebar";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,14 +46,11 @@ export default function App() {
       </head>
       <body className="dark:bg-darkBg">
         <ThemeProvider theme={data.theme}>
-          <SidebarProvider defaultOpen>
-            <AppSidebar />
-            <MainLayout>
-              <Outlet />
-            </MainLayout>
-            <ScrollRestoration />
-            <Scripts />
-          </SidebarProvider>
+          <MainLayout>
+            <Outlet />
+          </MainLayout>
+          <ScrollRestoration />
+          <Scripts />
         </ThemeProvider>
       </body>
     </html>
