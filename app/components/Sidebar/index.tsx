@@ -1,28 +1,20 @@
 "use client";
-
 import * as React from "react";
+import { useLocation } from "@remix-run/react";
 import {
   BadgeCheck,
   Bell,
   BookOpen,
   Bot,
-  ChevronRight,
   ChevronsUpDown,
   CreditCard,
-  Folder,
-  Forward,
-  Frame,
   Heart,
   LogOut,
-  Map,
-  MoreHorizontal,
-  PieChart,
   Plus,
   Settings2,
   Sparkles,
   SquareTerminal,
   Target,
-  Trash2,
   LucideIcon,
 } from "lucide-react";
 
@@ -39,11 +31,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../../components/ui/breadcrumb";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../../components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,12 +51,9 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
@@ -181,23 +165,6 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
 };
 
 interface JournalTypeInfo {
@@ -232,6 +199,7 @@ const journalTypes: JournalTypeInfo[] = [
 ];
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
   const [activeTeam, setActiveTeam] = useState<JournalTypeInfo>(
     journalTypes[0]
   );
@@ -248,7 +216,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SidebarProvider>
-        <Sidebar collapsible="icon">
+        <Sidebar>
           <SidebarHeader>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -312,89 +280,33 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Quick Access</SidebarGroupLabel>
+          <SidebarContent className="scrollbar">
+            <SidebarGroup className="p-0">
               <SidebarMenu>
                 {sidebarOptions[activeTeam.id].map((item) => (
-                  <Collapsible
-                    key={item.section}
-                    asChild
-                    className="group/collapsible"
-                  >
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton tooltip={item.section}>
-                          {item.items[0] &&
-                            React.createElement(item.items[0].icon)}
-                          <span>{item.section}</span>
-                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.items?.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.name}>
-                              <SidebarMenuSubButton asChild className="mb-2">
-                                <a href={subItem.href}>
-                                  <span>{subItem.name}</span>
-                                </a>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
+                  <React.Fragment key={item.section}>
+                    <SidebarGroupLabel className="rounded-none duration-200 shrink-0 items-center text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 p-4 block border-b-4 border-bottom dark:border-darkNavBorder text-xl font-heading h-auto">
+                      {item.section}
+                    </SidebarGroupLabel>
+                    {item.items?.map((subItem) => (
+                      <SidebarMenuItem key={subItem.name}>
+                        <SidebarMenuSubButton asChild>
+                          <a
+                            className={`rounded-none h-auto block border-b-4 border-border dark:border-darkNavBorder p-4 pl-7 font-base text-text/90 dark:text-darkText/90 hover:bg-main50 dark:hover:text-text ${
+                              location.pathname === subItem.href
+                                ? "bg-main50 dark:bg-main dark:text-black"
+                                : ""
+                            }`}
+                            href={subItem.href}
+                          >
+                            {React.createElement(subItem.icon, { size: 24 })}
+                            <span className="text-lg">{subItem.name}</span>
+                          </a>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </React.Fragment>
                 ))}
-              </SidebarMenu>
-            </SidebarGroup>
-            <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-              <SidebarGroupLabel>Projects</SidebarGroupLabel>
-              <SidebarMenu>
-                {data.projects.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        {React.createElement(item.icon)}
-                        <span>{item.name}</span>
-                      </a>
-                    </SidebarMenuButton>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <SidebarMenuAction showOnHover>
-                          <MoreHorizontal />
-                          <span className="sr-only">More</span>
-                        </SidebarMenuAction>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="w-48 rounded-lg"
-                        side="bottom"
-                        align="end"
-                      >
-                        <DropdownMenuItem>
-                          <Folder className="text-muted-foreground" />
-                          <span>View Project</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Forward className="text-muted-foreground" />
-                          <span>Share Project</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Trash2 className="text-muted-foreground" />
-                          <span>Delete Project</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </SidebarMenuItem>
-                ))}
-                <SidebarMenuItem>
-                  <SidebarMenuButton className="text-sidebar-foreground/70">
-                    <MoreHorizontal className="text-sidebar-foreground/70" />
-                    <span>More</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroup>
           </SidebarContent>

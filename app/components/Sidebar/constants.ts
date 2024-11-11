@@ -31,17 +31,17 @@ interface SidebarSection {
 export const sidebarOptions: Record<JournalType, SidebarSection[]> = {
   therapeutic: [
     {
-      section: "QUICK ACCESS",
+      section: "Quick Access",
       items: [
-        { name: "Today's Entry", icon: Book, href: "todays-entry" },
-        { name: "Emotional Check-in", icon: Heart, href: "check-in" },
-        { name: "Therapy Chat", icon: MessageCircle, href: "chat" },
-        { name: "Guided Reflection", icon: Brain, href: "refection" },
-        { name: "Mood Tracker", icon: LineChart, href: "mood" },
+        { name: "Today's Entry", icon: Book, href: "/todays-entry" },
+        { name: "Emotional Check-in", icon: Heart, href: "/check-in" },
+        { name: "Therapy Chat", icon: MessageCircle, href: "/chat" },
+        { name: "Guided Reflection", icon: Brain, href: "/refection" },
+        { name: "Mood Tracker", icon: LineChart, href: "/mood" },
       ],
     },
     {
-      section: "THERAPEUTIC TOOLS",
+      section: "Therapeutic Tools",
       items: [
         { name: "Coping Strategies", icon: Sparkles, href: "strategies" },
         { name: "Self-Care Checklist", icon: ListTodo, href: "checklist" },

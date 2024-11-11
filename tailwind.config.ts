@@ -57,6 +57,7 @@ const config = {
         darkText: "#eeefe9",
         darkBorder: "#000",
         secondaryBlack: "#212121",
+        main50: "#88aaeeb3",
       },
       borderRadius: {
         base: "5px",
