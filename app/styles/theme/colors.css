@@ -1,3 +1,5 @@
+--dark-bg: #272933;
+
 .light {
   --background-color: white;
   --text-color: black;
@@ -6,6 +8,10 @@
 .dark {
   --background-color: black;
   --text-color: white;
+}
+
+.bgImage {
+  background-image: radial-gradient(#80808080 1px, transparent 0);
 }
 
 [data-theme="light"] {

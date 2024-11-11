@@ -23,6 +23,7 @@ import {
   SquareTerminal,
   Target,
   Trash2,
+  LucideIcon,
 } from "lucide-react";
 
 import {
@@ -81,6 +82,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { sidebarOptions, JournalType } from "./constants";
 
 export const iframeHeight = "800px";
 
@@ -198,7 +200,14 @@ const data = {
   ],
 };
 
-const journalTypes = [
+interface JournalTypeInfo {
+  id: JournalType;
+  name: string;
+  icon: LucideIcon;
+  description: string;
+}
+
+const journalTypes: JournalTypeInfo[] = [
   {
     id: "therapeutic",
     name: "Therapeutic Journal",
@@ -223,11 +232,13 @@ const journalTypes = [
 ];
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
-  const [activeTeam, setActiveTeam] = useState(journalTypes[0]);
+  const [activeTeam, setActiveTeam] = useState<JournalTypeInfo>(
+    journalTypes[0]
+  );
   const [isJournalSelectorOpen, setIsJournalSelectorOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const handleCreateNewJournal = (typeId: string) => {
+  const handleCreateNewJournal = (typeId: JournalType) => {
     // Here you would handle the creation of a new journal
     console.log(`Creating new journal of type: ${typeId}`);
     setIsCreateModalOpen(false);
@@ -303,30 +314,30 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Platform</SidebarGroupLabel>
+              <SidebarGroupLabel>Quick Access</SidebarGroupLabel>
               <SidebarMenu>
-                {data.navMain.map((item) => (
+                {sidebarOptions[activeTeam.id].map((item) => (
                   <Collapsible
-                    key={item.title}
+                    key={item.section}
                     asChild
-                    defaultOpen={item.isActive}
                     className="group/collapsible"
                   >
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton tooltip={item.title}>
-                          {item.icon && <item.icon />}
-                          <span>{item.title}</span>
+                        <SidebarMenuButton tooltip={item.section}>
+                          {item.items[0] &&
+                            React.createElement(item.items[0].icon)}
+                          <span>{item.section}</span>
                           <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {item.items?.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubItem key={subItem.name}>
                               <SidebarMenuSubButton asChild className="mb-2">
-                                <a href={subItem.url}>
-                                  <span>{subItem.title}</span>
+                                <a href={subItem.href}>
+                                  <span>{subItem.name}</span>
                                 </a>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -345,7 +356,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild>
                       <a href={item.url}>
-                        <item.icon />
+                        {React.createElement(item.icon)}
                         <span>{item.name}</span>
                       </a>
                     </SidebarMenuButton>
@@ -497,7 +508,9 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
               </Breadcrumb>
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-4 pt-0">{children}</div>
+          <div className="flex flex-1 flex-col gap-4 pt-0 dark:bg-darkBg">
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
       {/* Create New Journal Modal */}
@@ -517,7 +530,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 className="w-full p-4 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {React.createElement(type.icon, { size: 24 })}
+                  {React.createElement(type.icon, { className: "w-6 h-6" })}
                   <div className="text-left">
                     <h3 className="font-medium">{type.name}</h3>
                     <p className="text-sm text-slate-300">{type.description}</p>

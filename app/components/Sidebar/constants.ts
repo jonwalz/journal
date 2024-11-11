@@ -12,27 +12,41 @@ import {
   BookOpen,
   Star,
   ClipboardList,
+  LucideIcon,
 } from "lucide-react";
 
-export const sidebarOptions = {
+export type JournalType = "therapeutic" | "growth" | "memory";
+
+interface SidebarItem {
+  name: string;
+  icon: LucideIcon;
+  href?: string;
+}
+
+interface SidebarSection {
+  section: string;
+  items: SidebarItem[];
+}
+
+export const sidebarOptions: Record<JournalType, SidebarSection[]> = {
   therapeutic: [
     {
       section: "QUICK ACCESS",
       items: [
-        { name: "Today's Entry", icon: Book },
-        { name: "Emotional Check-in", icon: Heart },
-        { name: "Therapy Chat", icon: MessageCircle },
-        { name: "Guided Reflection", icon: Brain },
-        { name: "Mood Tracker", icon: LineChart },
+        { name: "Today's Entry", icon: Book, href: "todays-entry" },
+        { name: "Emotional Check-in", icon: Heart, href: "check-in" },
+        { name: "Therapy Chat", icon: MessageCircle, href: "chat" },
+        { name: "Guided Reflection", icon: Brain, href: "refection" },
+        { name: "Mood Tracker", icon: LineChart, href: "mood" },
       ],
     },
     {
       section: "THERAPEUTIC TOOLS",
       items: [
-        { name: "Coping Strategies", icon: Sparkles },
-        { name: "Self-Care Checklist", icon: ListTodo },
-        { name: "Pattern Recognition", icon: Tag },
-        { name: "Progress Timeline", icon: Clock },
+        { name: "Coping Strategies", icon: Sparkles, href: "strategies" },
+        { name: "Self-Care Checklist", icon: ListTodo, href: "checklist" },
+        { name: "Pattern Recognition", icon: Tag, href: "pattern" },
+        { name: "Progress Timeline", icon: Clock, href: "timeline" },
       ],
     },
   ],
