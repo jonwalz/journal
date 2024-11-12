@@ -24,14 +24,6 @@ import {
   AvatarImage,
 } from "../../components/ui/avatar";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "../../components/ui/breadcrumb";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -41,7 +33,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
-import { Separator } from "../../components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -67,6 +58,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { sidebarOptions, JournalType } from "./constants";
+import { BreadcrumbNavigation } from "../Breadcrumb";
 
 export const iframeHeight = "800px";
 
@@ -282,7 +274,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           </SidebarHeader>
           <SidebarContent className="scrollbar">
             <SidebarGroup className="p-0">
-              <SidebarMenu>
+              <SidebarMenu className="gap-0">
                 {sidebarOptions[activeTeam.id].map((item) => (
                   <React.Fragment key={item.section}>
                     <SidebarGroupLabel className="rounded-none duration-200 shrink-0 items-center text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 p-4 block border-b-4 border-bottom dark:border-darkNavBorder text-xl font-heading h-auto">
@@ -292,7 +284,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                       <SidebarMenuItem key={subItem.name}>
                         <SidebarMenuSubButton asChild>
                           <a
-                            className={`rounded-none h-auto block border-b-4 border-border dark:border-darkNavBorder p-4 pl-7 font-base text-text/90 dark:text-darkText/90 hover:bg-main50 dark:hover:text-text ${
+                            className={`rounded-none h-auto block border-b-4 border-border dark:border-darkNavBorder p-4 pl-4 font-base text-text/90 dark:text-darkText/90 hover:bg-main50 dark:hover:text-text ${
                               location.pathname === subItem.href
                                 ? "bg-main50 dark:bg-main dark:text-black"
                                 : ""
@@ -403,21 +395,8 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
         <SidebarInset className="bg-white dark:bg-secondaryBlack">
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">
-                      Building Your Application
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+              <SidebarTrigger className="mx-1" />
+              <BreadcrumbNavigation journalTitle={activeTeam.name} />
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 pt-0 dark:bg-darkBg">
