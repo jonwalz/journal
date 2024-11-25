@@ -10,7 +10,6 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import styles from "./tailwind.css?url";
-import { MainLayout } from "./layouts/MainLayout";
 import { themeCookie } from "./utils/theme.server";
 import { ThemeProvider } from "./components/ThemeProvider";
 
@@ -46,12 +45,10 @@ export default function App() {
       </head>
       <body className="dark:bg-darkBg">
         <ThemeProvider theme={data.theme}>
-          <MainLayout>
-            <Outlet />
-          </MainLayout>
-          <ScrollRestoration />
-          <Scripts />
+          <Outlet />
         </ThemeProvider>
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
