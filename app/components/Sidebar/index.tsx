@@ -61,7 +61,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
               <SidebarMenu className="gap-0">
                 {sidebarOptions.map((items) => (
                   <SidebarMenuItem key={items.name}>
-                    <SidebarMenuSubButton asChild>
+                    <SidebarMenuSubButton asChild className="translate-x-0">
                       <a
                         className={`rounded-none h-auto block border-b-4 border-border dark:border-darkNavBorder p-4 pl-4 font-base text-text/90 dark:text-darkText/90 hover:bg-main50 dark:hover:text-text ${
                           location.pathname === items.href
@@ -86,7 +86,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           </SidebarFooter>
           <SidebarRail />
         </Sidebar>
-        <SidebarInset className="bg-white dark:bg-secondaryBlack">
+        <SidebarInset className="bg-white dark:bg-secondaryBlack border-l-4">
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="mx-1" />
