@@ -24,8 +24,8 @@ export const sidebarOptions: SidebarItem[] = [
   { name: "Growth Chat", icon: MessageCircle, href: "/chat" },
   { name: "Action Items", icon: ListTodo, href: "/action-items" },
   { name: "Progress Dashboard", icon: LineChart, href: "/progress" },
-  { name: "Milestone Tracker", icon: Clock },
-  { name: "Action Plans", icon: ClipboardList },
-  { name: "Success Stories", icon: Star },
-  { name: "Habit Builder", icon: Target },
+  { name: "Milestone Tracker", icon: Clock, href: "/milestones" },
+  { name: "Learning Path", icon: ClipboardList, href: "/learning-path" },
+  { name: "Success Stories", icon: Star, href: "/success-stories" },
+  { name: "Habit Builder", icon: Target, href: "/habit-builder" },
 ];

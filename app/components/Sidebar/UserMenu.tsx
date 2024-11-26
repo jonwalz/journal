@@ -25,6 +25,7 @@ import {
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
 import { userData } from "./data";
+import ToggleThemeButton from "../ToggleThemeButton";
 
 export function UserMenu() {
   return (
@@ -73,13 +74,6 @@ export function UserMenu() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Sparkles />
-              Upgrade to Pro
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
               <BadgeCheck />
               Account
             </DropdownMenuItem>
@@ -90,6 +84,11 @@ export function UserMenu() {
             <DropdownMenuItem>
               <Bell />
               Notifications
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <ToggleThemeButton />
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
