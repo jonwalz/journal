@@ -1,17 +1,10 @@
-# Neobrutalism Remix Application
+# Journal Up UI
 
-A modern web application built with Remix, featuring a Neobrutalism design system with server-side theme persistence.
+Front end for a journaling application that incorporates growth mindset coaching techniques and leverages AI for personalized insights.
 
-## 🎨 Features
+## Server Repository
 
-- Server-side persisted dark/light theme
-- Neobrutalism-styled UI components
-- Responsive sidebar navigation
-- Breadcrumb navigation
-- Mobile-first design
-- Comprehensive UI component library
-- Type-safe development
-- Feature-based architecture
+[https://github.com/shadcn/journal-up](https://github.com/shadcn/journal-up)
 
 ## 🛠 Tech Stack
 
@@ -20,7 +13,6 @@ A modern web application built with Remix, featuring a Neobrutalism design syste
 - [TailwindCSS](https://tailwindcss.com/) - Utility-first CSS
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 - Custom UI Component Library
-- Server-side theme persistence
 
 ## 🏗 Development
 
