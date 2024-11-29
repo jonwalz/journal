@@ -4,7 +4,6 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 import {
   Avatar,
@@ -38,7 +37,7 @@ export function UserMenu() {
           >
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src={userData.avatar} alt={userData.name} />
-              <AvatarFallback className="rounded-lg text-black bg-blue-300">
+              <AvatarFallback className="rounded-lg text-black bg-main">
                 CN
               </AvatarFallback>
             </Avatar>
