@@ -1,4 +1,5 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { AuthService } from "./auth.service";
 
 // This should be in an environment variable
 const sessionSecret = process.env.SESSION_SECRET;
@@ -9,7 +10,7 @@ if (!sessionSecret) {
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: "__session",
+    name: "auth_session",
     httpOnly: true,
     maxAge: 60 * 60 * 24 * 30, // 30 days
     path: "/",
@@ -19,61 +20,64 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
-// Token-based session management
-export async function createUserSession(
-  token: string,
-  userId: string,
-  redirectTo: string
-) {
-  const session = await sessionStorage.getSession();
-
-  session.set("token", token);
-  session.set("userId", userId);
-
-  return redirect(redirectTo, {
-    headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
-    },
-  });
-}
-
-export async function getUserSession(request: Request) {
+export async function getSession(request: Request) {
   return sessionStorage.getSession(request.headers.get("Cookie"));
 }
 
-export async function getUserToken(request: Request) {
-  const session = await getUserSession(request);
-  const token = session.get("token");
-  return token;
+export async function setAuthTokens(
+  request: Request,
+  authToken: string,
+  sessionToken: string
+) {
+  const session = await getSession(request);
+  session.set("authToken", authToken);
+  session.set("sessionToken", sessionToken);
+  return sessionStorage.commitSession(session);
 }
 
-export async function getUserId(request: Request) {
-  const session = await getUserSession(request);
-  const userId = session.get("userId");
-  if (!userId || typeof userId !== "string") return null;
-  return userId;
+export async function getAuthToken(request: Request) {
+  const session = await getSession(request);
+  return session.get("authToken");
+}
+
+export async function getSessionToken(request: Request) {
+  const session = await getSession(request);
+  return session.get("sessionToken");
 }
 
 export async function requireUserSession(
   request: Request,
   redirectTo: string = "/login"
 ) {
-  const token = await getUserToken(request);
-  const userId = await getUserId(request);
+  const authToken = await getAuthToken(request);
+  const sessionToken = await getSessionToken(request);
 
-  if (!token || !userId) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
+  if (!authToken || !sessionToken) {
+    throw redirect(redirectTo);
   }
 
-  return { token, userId };
+  try {
+    // Verify both tokens
+    await Promise.all([
+      AuthService.verifyAuthToken(authToken),
+      AuthService.verifySessionToken(sessionToken),
+    ]);
+
+    return { authToken, sessionToken };
+  } catch (error) {
+    throw redirect(redirectTo);
+  }
+}
+
+export async function destroySession(request: Request) {
+  const session = await getSession(request);
+  return sessionStorage.destroySession(session);
 }
 
 export async function logout(request: Request) {
-  const session = await getUserSession(request);
   return redirect("/login", {
     headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
+      "Set-Cookie": await destroySession(request),
     },
   });
 }

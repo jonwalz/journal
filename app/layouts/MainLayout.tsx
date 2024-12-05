@@ -7,7 +7,6 @@ export function MainLayout({ children }: PropsWithChildren) {
       <AppSidebar>
         <main>{children}</main>
       </AppSidebar>
-      {/* <main className="container mx-auto px-4 py-8">{children}</main> */}
     </div>
   );
 }

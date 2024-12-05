@@ -1,11 +1,11 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { FormField, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { AuthService } from "~/services/auth.service";
-import { createUserSession } from "~/services/session.server";
+import { setAuthTokens } from "~/services/session.server";
 
 interface ActionData {
   errors?: {
@@ -40,7 +40,18 @@ export async function action({ request }: ActionFunctionArgs) {
       password: password!,
     });
 
-    return createUserSession(response.token, response.user.id, "/dashboard");
+    // Set auth tokens in session
+    const cookie = await setAuthTokens(
+      request,
+      response.token,
+      response.sessionToken
+    );
+
+    return redirect("/dashboard", {
+      headers: {
+        "Set-Cookie": cookie,
+      },
+    });
   } catch (error) {
     return json<ActionData>(
       { errors: { _form: "Invalid email or password" } },
