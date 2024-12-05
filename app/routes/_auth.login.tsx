@@ -67,7 +67,7 @@ export default function LoginPage() {
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight dark:text-white text-text">
             Welcome back
           </h1>
           <p className="text-sm text-gray-500">
@@ -77,7 +77,9 @@ export default function LoginPage() {
 
         <Form method="post" className="space-y-4">
           <FormField>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel htmlFor="email" className="dark:text-white text-text">
+              Email
+            </FormLabel>
             <Input
               id="email"
               type="email"
@@ -92,7 +94,9 @@ export default function LoginPage() {
           </FormField>
 
           <FormField>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel htmlFor="password" className="dark:text-white text-text">
+              Password
+            </FormLabel>
             <Input
               id="password"
               type="password"
@@ -114,7 +118,7 @@ export default function LoginPage() {
           </Button>
         </Form>
 
-        <div className="text-center text-sm">
+        <div className="text-center text-sm dark:text-white text-text">
           Don&apos;t have an account?{" "}
           <a href="/register" className="underline hover:text-gray-800">
             Sign up
