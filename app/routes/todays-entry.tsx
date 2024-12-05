@@ -105,8 +105,10 @@ const TherapeuticJournalEntry = () => {
       <MainLayout>
         <div className="container max-w-4xl mx-auto p-6 space-y-6">
           {/* Header */}
-          <h3 className="text-xl font-heading">Today&apos;s Entry</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <h3 className="text-xl font-heading dark:text-white text-text">
+            Today&apos;s Entry
+          </h3>
+          <div className="flex items-center gap-2 text-sm dark:text-gray-500 text-gray-700">
             <Calendar className="w-4 h-4" />
             <span>{new Date().toLocaleDateString()}</span>
             <Clock className="w-4 h-4 ml-2" />
@@ -135,7 +137,7 @@ const TherapeuticJournalEntry = () => {
           <Form method="post" className="space-y-4">
             <Textarea
               name="content"
-              className="w-full h-64 p-4 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-64 p-4 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 placeholder:italic"
               placeholder="Write your thoughts here..."
             />
 
@@ -150,7 +152,7 @@ const TherapeuticJournalEntry = () => {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                  className="flex items-center gap-2 px-4 py-2 dark:text-gray-500 text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   <Tag className="w-4 h-4" />
                   <span>Add Tags</span>

@@ -17,11 +17,10 @@ import {
   SidebarTrigger,
 } from "../../components/ui/sidebar";
 import { BreadcrumbNavigation } from "../Breadcrumb";
-import { sidebarOptions } from "./constants";
+import { sidebarOptions, JournalType } from "./constants";
 import { journalTypes } from "./data";
 import { JournalSelector } from "./JournalSelector";
 import { UserMenu } from "./UserMenu";
-import { JournalType } from "./constants";
 import {
   Dialog,
   DialogContent,
