@@ -28,11 +28,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { useJournal } from "~/context/JournalContext";
 
 export const iframeHeight = "800px";
 export const description = "A sidebar that collapses to icons.";
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
+  const { journals } = useJournal();
+  console.log("Journals", journals);
   const location = useLocation();
   const [activeTeam, setActiveTeam] = useState(journalTypes[0]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -52,6 +55,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 activeTeam={activeTeam}
                 setActiveTeam={setActiveTeam}
                 onCreateNew={() => setIsCreateModalOpen(true)}
+                journals={journals}
               />
             </SidebarMenu>
           </SidebarHeader>

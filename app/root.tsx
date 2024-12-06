@@ -12,6 +12,9 @@ import type { LinksFunction } from "@remix-run/node";
 import styles from "./tailwind.css?url";
 import { themeCookie } from "./utils/theme.server";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { JournalService } from "./services/journal.service";
+import { requireUserSession } from "./services/session.server";
+import { JournalProvider } from "./context/JournalContext";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,7 +32,16 @@ export const links: LinksFunction = () => [
 
 export const loader = async ({ request }: { request: Request }) => {
   const theme = await themeCookie.parse(request.headers.get("Cookie"));
-  return json({ theme: theme || "light" });
+  const { authToken, sessionToken } = await requireUserSession(request);
+
+  const journals = await JournalService.getJournals({
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      "x-session-token": sessionToken,
+    },
+  });
+
+  return json({ theme: theme || "light", journals: journals ?? [] });
 };
 
 export default function App() {
@@ -44,9 +56,11 @@ export default function App() {
         <Links />
       </head>
       <body className="dark:bg-darkBg">
-        <ThemeProvider theme={data.theme}>
-          <Outlet />
-        </ThemeProvider>
+        <JournalProvider journals={data.journals}>
+          <ThemeProvider theme={data.theme}>
+            <Outlet />
+          </ThemeProvider>
+        </JournalProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
