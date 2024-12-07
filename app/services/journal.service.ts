@@ -1,43 +1,18 @@
-import { ApiClient, RequestOptions } from "./api-client";
+import { ApiClient, RequestOptions } from "./api-client.server";
+import {
+  CreateJournalInput,
+  JournalServiceError,
+  Journal,
+} from "~/types/journal";
 
-export class JournalServiceError extends Error {
-  constructor(message: string, public originalError?: unknown) {
-    super(message);
-    this.name = "JournalServiceError";
-  }
-}
-
-interface Journal {
-  id: number;
-  title: string;
-  content: string;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface SingleJournalResponse {
-  data: Journal;
-}
-
-interface JournalResponse {
-  data: Journal[];
-}
-
-interface CreateJournalInput {
-  title: string;
-  content: string;
-}
+export type { JournalServiceError };
 
 export class JournalService {
   static async getJournals(options: RequestOptions = {}): Promise<Journal[]> {
     try {
-      const response = await ApiClient.get<JournalResponse>(
-        "/journals",
-        options
-      );
+      const response = await ApiClient.get<Journal[]>("/journals", options);
 
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw new JournalServiceError("Failed to fetch journals", error);
     }
@@ -45,10 +20,8 @@ export class JournalService {
 
   static async getJournalById(id: number): Promise<Journal> {
     try {
-      const response = await ApiClient.get<SingleJournalResponse>(
-        `/journals/${id}`
-      );
-      return response.data.data;
+      const response = await ApiClient.get<Journal>(`/journals/${id}`);
+      return response.data;
     } catch (error) {
       throw new JournalServiceError(
         `Failed to fetch journal with id ${id}`,
@@ -57,13 +30,17 @@ export class JournalService {
     }
   }
 
-  static async createJournal(input: CreateJournalInput): Promise<Journal> {
+  static async createJournal(
+    name: string,
+    options: RequestOptions = {}
+  ): Promise<Journal> {
     try {
-      const response = await ApiClient.post<SingleJournalResponse>(
+      const response = await ApiClient.post<Journal>(
         "/journals",
-        input
+        { title: name },
+        options
       );
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw new JournalServiceError("Failed to create journal", error);
     }
@@ -74,11 +51,8 @@ export class JournalService {
     input: Partial<CreateJournalInput>
   ): Promise<Journal> {
     try {
-      const response = await ApiClient.put<SingleJournalResponse>(
-        `/journals/${id}`,
-        input
-      );
-      return response.data.data;
+      const response = await ApiClient.put<Journal>(`/journals/${id}`, input);
+      return response.data;
     } catch (error) {
       throw new JournalServiceError(
         `Failed to update journal with id ${id}`,
@@ -93,6 +67,45 @@ export class JournalService {
     } catch (error) {
       throw new JournalServiceError(
         `Failed to delete journal with id ${id}`,
+        error
+      );
+    }
+  }
+
+  static async createEntry(
+    journalId: string,
+    content: string,
+    options: RequestOptions = {}
+  ): Promise<void> {
+    try {
+      await ApiClient.post(
+        `/journals/${journalId}/entries`,
+        {
+          content,
+        },
+        options
+      );
+    } catch (error) {
+      throw new JournalServiceError(
+        `Failed to create entry for journal ${journalId}`,
+        error
+      );
+    }
+  }
+
+  static async getEntries(
+    journalId: string,
+    options: RequestOptions = {}
+  ): Promise<unknown[]> {
+    try {
+      const response = await ApiClient.get<unknown[]>(
+        `/journals/${journalId}/entries`,
+        options
+      );
+      return response.data;
+    } catch (error) {
+      throw new JournalServiceError(
+        `Failed to get entries for journal ${journalId}`,
         error
       );
     }

@@ -34,18 +34,24 @@ export const loader = async ({ request }: { request: Request }) => {
   const theme = await themeCookie.parse(request.headers.get("Cookie"));
   const { authToken, sessionToken } = await requireUserSession(request);
 
-  const journals = await JournalService.getJournals({
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-      "x-session-token": sessionToken,
-    },
-  });
+  try {
+    const response = await JournalService.getJournals({
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "x-session-token": sessionToken,
+      },
+    });
 
-  return json({ theme: theme || "light", journals: journals ?? [] });
+    return json({ theme: theme || "light", journals: response });
+  } catch (error) {
+    console.error(error);
+    return json({ theme: theme || "light", journals: [] });
+  }
 };
 
 export default function App() {
   const data = useLoaderData<typeof loader>();
+  console.log("COMPONENT DATA", data);
 
   return (
     <html lang="en" className={data.theme}>

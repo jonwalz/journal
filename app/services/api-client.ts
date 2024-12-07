@@ -62,7 +62,10 @@ export class ApiClient {
     return this.request<T>(endpoint, { ...options, method: "DELETE" });
   }
 
-  private static async addAuthHeaders(options: RequestOptions = {}, request: Request): Promise<RequestOptions> {
+  private static async addAuthHeaders(
+    options: RequestOptions = {},
+    request: Request
+  ): Promise<RequestOptions> {
     const session = await getSession(request);
     const authToken = session.get("authToken");
     const sessionToken = session.get("sessionToken");
@@ -81,22 +84,48 @@ export class ApiClient {
     };
   }
 
-  static async getProtected<T>(endpoint: string, request: Request, options?: RequestOptions) {
+  static async getProtected<T>(
+    endpoint: string,
+    request: Request,
+    options?: RequestOptions
+  ) {
     const protectedOptions = await this.addAuthHeaders(options || {}, request);
     return this.request<T>(endpoint, { ...protectedOptions, method: "GET" });
   }
 
-  static async postProtected<T>(endpoint: string, request: Request, data?: unknown, options?: RequestOptions) {
+  static async postProtected<T>(
+    endpoint: string,
+    request: Request,
+    data?: unknown,
+    options?: RequestOptions
+  ) {
     const protectedOptions = await this.addAuthHeaders(options || {}, request);
-    return this.request<T>(endpoint, { ...protectedOptions, method: "POST", data });
+    return this.request<T>(endpoint, {
+      ...protectedOptions,
+      method: "POST",
+      data,
+    });
   }
 
-  static async putProtected<T>(endpoint: string, request: Request, data?: unknown, options?: RequestOptions) {
+  static async putProtected<T>(
+    endpoint: string,
+    request: Request,
+    data?: unknown,
+    options?: RequestOptions
+  ) {
     const protectedOptions = await this.addAuthHeaders(options || {}, request);
-    return this.request<T>(endpoint, { ...protectedOptions, method: "PUT", data });
+    return this.request<T>(endpoint, {
+      ...protectedOptions,
+      method: "PUT",
+      data,
+    });
   }
 
-  static async deleteProtected<T>(endpoint: string, request: Request, options?: RequestOptions) {
+  static async deleteProtected<T>(
+    endpoint: string,
+    request: Request,
+    options?: RequestOptions
+  ) {
     const protectedOptions = await this.addAuthHeaders(options || {}, request);
     return this.request<T>(endpoint, { ...protectedOptions, method: "DELETE" });
   }

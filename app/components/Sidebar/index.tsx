@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useLocation } from "@remix-run/react";
+import { useLocation, Form } from "@remix-run/react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -17,33 +17,29 @@ import {
   SidebarTrigger,
 } from "../../components/ui/sidebar";
 import { BreadcrumbNavigation } from "../Breadcrumb";
-import { sidebarOptions, JournalType } from "./constants";
-import { journalTypes } from "./data";
+import { sidebarOptions } from "./constants";
 import { JournalSelector } from "./JournalSelector";
 import { UserMenu } from "./UserMenu";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "../ui/dialog";
 import { useJournal } from "~/context/JournalContext";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 export const iframeHeight = "800px";
 export const description = "A sidebar that collapses to icons.";
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
   const { journals } = useJournal();
-  console.log("Journals", journals);
   const location = useLocation();
-  const [activeTeam, setActiveTeam] = useState(journalTypes[0]);
+  const [activeJournal, setActiveJournal] = useState(journals[0]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  const handleCreateNewJournal = (typeId: JournalType) => {
-    console.log(`Creating new journal of type: ${typeId}`);
-    setIsCreateModalOpen(false);
-  };
 
   return (
     <>
@@ -52,8 +48,8 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <SidebarHeader>
             <SidebarMenu>
               <JournalSelector
-                activeTeam={activeTeam}
-                setActiveTeam={setActiveTeam}
+                activeJournal={activeJournal}
+                setActiveJournal={setActiveJournal}
                 onCreateNew={() => setIsCreateModalOpen(true)}
                 journals={journals}
               />
@@ -93,7 +89,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="mx-1" />
-              <BreadcrumbNavigation journalTitle={activeTeam.name} />
+              <BreadcrumbNavigation journalTitle={activeJournal.title} />
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 pt-0 dark:bg-darkBg">
@@ -107,26 +103,45 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <DialogHeader>
             <DialogTitle>Create New Journal</DialogTitle>
             <DialogDescription>
-              Choose the type of journal you&apos;d like to create
+              Enter a name for your new journal
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            {journalTypes.map((type) => (
-              <button
-                key={type.id}
-                onClick={() => handleCreateNewJournal(type.id)}
-                className="w-full p-4 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
+          <Form
+            method="post"
+            action="/journals/new"
+            onSubmit={(e) => {
+              const form = e.currentTarget;
+              const name = new FormData(form).get("name") as string;
+              if (!name) {
+                e.preventDefault();
+              } else {
+                setIsCreateModalOpen(false);
+              }
+            }}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">
+                Journal Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-secondaryBlack dark:border-slate-700"
+                placeholder="My Journal"
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                className="px-4 py-2  rounded-lg transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  {React.createElement(type.icon, { className: "w-6 h-6" })}
-                  <div className="text-left">
-                    <h3 className="font-medium">{type.name}</h3>
-                    <p className="text-sm text-slate-300">{type.description}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                Create Journal
+              </Button>
+            </div>
+          </Form>
         </DialogContent>
       </Dialog>
     </>

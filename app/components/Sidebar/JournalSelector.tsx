@@ -13,21 +13,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
-import { journalTypes } from "./data";
-import { JournalTypeInfo } from "./types";
-import { Journal } from "~/context/JournalContext";
+import { Journal } from "~/types/journal";
 import { Button } from "../ui/button";
 
 interface JournalSelectorProps {
-  activeTeam: JournalTypeInfo;
-  setActiveTeam: (team: JournalTypeInfo) => void;
+  activeJournal: Journal;
+  setActiveJournal: (journal: Journal) => void;
   onCreateNew: () => void;
   journals: Journal[];
 }
 
 export function JournalSelector({
-  activeTeam,
-  setActiveTeam,
+  activeJournal,
+  setActiveJournal,
   onCreateNew,
   journals,
 }: JournalSelectorProps) {
@@ -44,7 +42,7 @@ export function JournalSelector({
             >
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold text-text dark:text-darkText">
-                  {activeTeam.name}
+                  {activeJournal.title}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto text-text dark:text-darkText" />
@@ -61,13 +59,13 @@ export function JournalSelector({
                 <DropdownMenuLabel className="text-xs text-muted-foreground text-black dark:text-white">
                   Journals
                 </DropdownMenuLabel>
-                {journalTypes.map((journal, index) => (
+                {journals.map((journal, index) => (
                   <DropdownMenuItem
-                    key={journal.name}
-                    onClick={() => setActiveTeam(journal)}
+                    key={journal.title}
+                    onClick={() => setActiveJournal(journal)}
                     className="gap-2 p-2 mb-2 cursor-pointer"
                   >
-                    {journal.name}
+                    {journal.title}
                     <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                   </DropdownMenuItem>
                 ))}

@@ -1,4 +1,4 @@
-import { ApiClient } from "./api-client";
+import { ApiClient } from "./api-client.server";
 
 interface SignUpData {
   email: string;
