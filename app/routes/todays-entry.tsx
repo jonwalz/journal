@@ -36,7 +36,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    // TODO: Replace '123' with actual journalId from your app's state management
     await JournalService.createEntry(journalId as string, content, {
       headers: {
         Authorization: `Bearer ${authToken}`,
