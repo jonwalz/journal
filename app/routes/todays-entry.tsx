@@ -62,15 +62,17 @@ const TherapeuticJournalEntry = () => {
   const isSubmitting = navigation.state === "submitting";
   const { selectedJournalId } = useJournal();
 
-  const therapeuticPrompts = [
-    "How are you feeling today, and what might be contributing to those feelings?",
-    "What's one thing that challenged you today, and how did you handle it?",
-    "Reflect on a moment today when you felt strong or capable.",
-    "What would you like to tell yourself right now?",
-    "What are you grateful for in this moment?",
+  const growthPrompts = [
+    "What new skill or knowledge did you work on today, and what did you learn from the experience?",
+    "Describe a challenge you faced today. What opportunities for growth do you see in it?",
+    "What's something you initially found difficult but are getting better at? How can you see your progress?",
+    "What would you like to improve or master next? What small step can you take toward that goal?",
+    "How did you push outside your comfort zone today, and what did that teach you?",
   ];
 
-  const [selectedPrompt] = useState(therapeuticPrompts[0]);
+  const [selectedPrompt] = useState(
+    growthPrompts[Math.floor(Math.random() * growthPrompts.length)] // Grab a random prompt
+  );
 
   return (
     <MainLayout>
