@@ -1,11 +1,11 @@
 import { json, SerializeFrom } from "@remix-run/node";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
-import { ApiClient } from "~/services/api-client";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { MainLayout } from "~/layouts/MainLayout";
 import { cn } from "~/lib/utils";
+import { ChatService, ChatServiceError } from "~/services/chat.service";
 
 interface Message {
   role: "user" | "assistant";
@@ -33,16 +33,14 @@ export async function action({ request }: { request: Request }) {
   const message = formData.get("message") as string;
 
   try {
-    const response = await ApiClient.post<{ response: string }>("/chat", {
-      data: { message },
-    });
-
-    return json<ActionData>({ message: response.data.response });
+    const response = await ChatService.sendMessage(message, request);
+    return json<ActionData>({ message: response.message });
   } catch (error) {
-    return json<ActionData>(
-      { error: "Failed to send message" },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof ChatServiceError
+        ? error.message
+        : "Failed to send message";
+    return json<ActionData>({ error: errorMessage }, { status: 500 });
   }
 }
 
