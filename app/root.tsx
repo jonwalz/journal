@@ -51,7 +51,6 @@ export const loader = async ({ request }: { request: Request }) => {
 
 export default function App() {
   const data = useLoaderData<typeof loader>();
-  console.log("COMPONENT DATA", data);
 
   return (
     <html lang="en" className={data.theme}>

@@ -6,6 +6,7 @@ import { Input } from "~/components/ui/input";
 import { MainLayout } from "~/layouts/MainLayout";
 import { cn } from "~/lib/utils";
 import { ChatService, ChatServiceError } from "~/services/chat.service";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -79,19 +80,21 @@ export default function Chat() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-4">
+      <div className="flex flex-col h-[calc(100vh-4rem)] max-w-6xl mx-auto p-4">
         <div className="flex-1 overflow-y-auto space-y-4 mb-4">
           {messages.map((message, index) => (
             <div
               key={index}
               className={cn(
-                "p-4 rounded-base border-2 border-border dark:border-darkBorder",
+                "p-4 rounded-base border-2 border-border dark:border-darkBorder max-w-2xl",
                 message.role === "user"
-                  ? "bg-white dark:bg-secondaryBlack ml-8"
-                  : "bg-main mr-8"
+                  ? "bg-white dark:bg-secondaryBlack ml-auto"
+                  : "bg-main-50 mr-auto"
               )}
             >
-              <p className="text-text dark:text-darkText">{message.content}</p>
+              <div className="prose dark:prose-invert max-w-none">
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+              </div>
             </div>
           ))}
           <div ref={chatEndRef} />

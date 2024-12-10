@@ -41,11 +41,11 @@ type CustomThemeType = {
 const config = {
   darkMode: ["selector"],
   content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
   theme: {
     extend: {
       colors: {
-        main: "#88aaee",
+        main: "#4d80e6",
         mainAccent: "#4d80e6",
         overlay: "rgba(0,0,0,0.8)",
         bg: "#dfe5f2",
