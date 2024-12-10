@@ -45,7 +45,7 @@ const config = {
   theme: {
     extend: {
       colors: {
-        main: "#4d80e6",
+        main: "#7E8F6C",
         mainAccent: "#4d80e6",
         overlay: "rgba(0,0,0,0.8)",
         bg: "#dfe5f2",

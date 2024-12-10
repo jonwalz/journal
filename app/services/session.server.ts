@@ -52,6 +52,7 @@ export async function requireUserSession(
   const authToken = await getAuthToken(request);
   const sessionToken = await getSessionToken(request);
 
+  console.log(authToken, sessionToken);
   if (!authToken || !sessionToken) {
     throw redirect(redirectTo);
   }

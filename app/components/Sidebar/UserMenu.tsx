@@ -25,6 +25,7 @@ import {
 } from "../../components/ui/sidebar";
 import { userData } from "./data";
 import ToggleThemeButton from "../ToggleThemeButton";
+import { Form } from "@remix-run/react";
 
 export function UserMenu() {
   return (
@@ -91,10 +92,14 @@ export function UserMenu() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut />
-            Log out
-          </DropdownMenuItem>
+          <Form action="/logout" method="post">
+            <DropdownMenuItem asChild>
+              <button className="w-full flex gap-2 items-center">
+                <LogOut />
+                Log out
+              </button>
+            </DropdownMenuItem>
+          </Form>
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>

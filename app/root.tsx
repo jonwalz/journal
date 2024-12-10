@@ -54,12 +54,8 @@ export const loader = async ({ request }: { request: Request }) => {
 
     return json({ theme: theme || "light", journals: response });
   } catch (error) {
-    // If authentication fails, redirect to login
-    if (error instanceof Response && error.status === 401) {
-      throw redirect("/login");
-    }
     console.error(error);
-    return json({ theme: theme || "light", journals: [] });
+    throw redirect("/login");
   }
 };
 
