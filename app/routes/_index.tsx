@@ -1,9 +1,21 @@
-import { type MetaFunction, json, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  type MetaFunction,
+  json,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import Article from "../components/Article";
-import { requireUserSession } from "~/services/session.server";
+import { getSession } from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requireUserSession(request);
+  const session = await getSession(request);
+  const authToken = session.get("authToken");
+  const sessionToken = session.get("sessionToken");
+
+  if (!authToken || !sessionToken) {
+    throw redirect("/login");
+  }
+
   return json({});
 }
 

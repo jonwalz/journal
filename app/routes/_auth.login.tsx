@@ -6,6 +6,7 @@ import { FormField, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { AuthService } from "~/services/auth.service";
 import { setAuthTokens } from "~/services/session.server";
+import { getSession } from "~/services/session.server";
 
 interface ActionData {
   errors?: {
@@ -15,8 +16,16 @@ interface ActionData {
   };
 }
 
-export async function loader() {
-  // TODO: Check if user is already authenticated
+export async function loader({ request }: ActionFunctionArgs) {
+  const session = await getSession(request);
+  const authToken = session.get("authToken");
+  const sessionToken = session.get("sessionToken");
+
+  // If user is already authenticated, redirect to dashboard
+  if (authToken && sessionToken) {
+    return redirect("/");
+  }
+
   return json({});
 }
 

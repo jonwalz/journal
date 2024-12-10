@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  redirect,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 
@@ -32,9 +33,18 @@ export const links: LinksFunction = () => [
 
 export const loader = async ({ request }: { request: Request }) => {
   const theme = await themeCookie.parse(request.headers.get("Cookie"));
-  const { authToken, sessionToken } = await requireUserSession(request);
+  const url = new URL(request.url);
+
+  // Don't require authentication for auth routes
+  if (
+    url.pathname.startsWith("/login") ||
+    url.pathname.startsWith("/register")
+  ) {
+    return json({ theme: theme || "light", journals: [] });
+  }
 
   try {
+    const { authToken, sessionToken } = await requireUserSession(request);
     const response = await JournalService.getJournals({
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -44,6 +54,10 @@ export const loader = async ({ request }: { request: Request }) => {
 
     return json({ theme: theme || "light", journals: response });
   } catch (error) {
+    // If authentication fails, redirect to login
+    if (error instanceof Response && error.status === 401) {
+      throw redirect("/login");
+    }
     console.error(error);
     return json({ theme: theme || "light", journals: [] });
   }
