@@ -12,15 +12,40 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Alert } from "~/components/ui/alerts";
 import { MainLayout } from "~/layouts/MainLayout";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
-import { ActionFunctionArgs, json } from "@remix-run/node";
-import { useJournal } from "~/context/JournalContext";
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useLoaderData,
+} from "@remix-run/react";
+import { ActionFunctionArgs, json, LoaderFunction } from "@remix-run/node";
 import { JournalService } from "~/services/journal.service";
 import { requireUserSession } from "~/services/session.server";
+import type { Journal } from "~/types/journal";
 
 type ActionData =
   | { success: true; error?: never }
   | { success?: never; error: string };
+
+type LoaderData = {
+  selectedJournalId: string;
+  journals: Journal[];
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const { authToken, sessionToken } = await requireUserSession(request);
+  const response = await JournalService.getJournals({
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      "x-session-token": sessionToken,
+    },
+  });
+
+  return json<LoaderData>({
+    selectedJournalId: response[0]?.id || "",
+    journals: response,
+  });
+};
 
 export async function action({ request }: ActionFunctionArgs) {
   const { authToken, sessionToken } = await requireUserSession(request);
@@ -59,7 +84,7 @@ const TherapeuticJournalEntry = () => {
   const actionData = useActionData<ActionData>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  const { selectedJournalId } = useJournal();
+  const { selectedJournalId } = useLoaderData<LoaderData>();
 
   const growthPrompts = [
     "What new skill or knowledge did you work on today, and what did you learn from the experience?",

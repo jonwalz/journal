@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useLocation, Form } from "@remix-run/react";
+import { useLocation, Form, useOutletContext } from "@remix-run/react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -27,19 +27,25 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../ui/dialog";
-import { useJournal } from "~/context/JournalContext";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Journal } from "~/types/journal";
+
+type ContextType = {
+  journals: Journal[];
+};
 
 export const iframeHeight = "800px";
 export const description = "A sidebar that collapses to icons.";
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
-  const { journals } = useJournal();
+  const { journals } = useOutletContext<ContextType>();
   const location = useLocation();
-  const [activeJournal, setActiveJournal] = useState(journals[0]);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [activeJournal, setActiveJournal] = useState(journals[0] ?? null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(
+    journals.length === 0 ? true : false
+  );
 
   return (
     <>
@@ -89,7 +95,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="mx-1" />
-              <BreadcrumbNavigation journalTitle={activeJournal.title} />
+              <BreadcrumbNavigation journalTitle={activeJournal?.title} />
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 pt-0 dark:bg-darkBg">

@@ -9,13 +9,19 @@ import {
   redirect,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
+import type { Journal } from "~/types/journal";
 
 import styles from "./tailwind.css?url";
 import { themeCookie } from "./utils/theme.server";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { JournalService } from "./services/journal.service";
 import { requireUserSession } from "./services/session.server";
-import { JournalProvider } from "./context/JournalContext";
+import { Theme } from "./types";
+
+export type RootLoaderData = {
+  theme: Theme;
+  journals: Journal[];
+};
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -40,7 +46,7 @@ export const loader = async ({ request }: { request: Request }) => {
     url.pathname.startsWith("/login") ||
     url.pathname.startsWith("/register")
   ) {
-    return json({ theme: theme || "light", journals: [] });
+    return json<RootLoaderData>({ theme: theme || "light", journals: [] });
   }
 
   try {
@@ -52,7 +58,10 @@ export const loader = async ({ request }: { request: Request }) => {
       },
     });
 
-    return json({ theme: theme || "light", journals: response });
+    return json<RootLoaderData>({
+      theme: theme || "light",
+      journals: response,
+    });
   } catch (error) {
     console.error(error);
     throw redirect("/login");
@@ -60,10 +69,10 @@ export const loader = async ({ request }: { request: Request }) => {
 };
 
 export default function App() {
-  const data = useLoaderData<typeof loader>();
+  const { theme, journals } = useLoaderData<typeof loader>();
 
   return (
-    <html lang="en" className={data.theme}>
+    <html lang="en" className={theme}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -71,11 +80,9 @@ export default function App() {
         <Links />
       </head>
       <body className="dark:bg-darkBg">
-        <JournalProvider journals={data.journals}>
-          <ThemeProvider theme={data.theme}>
-            <Outlet />
-          </ThemeProvider>
-        </JournalProvider>
+        <ThemeProvider theme={theme}>
+          <Outlet context={{ journals }} />
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
