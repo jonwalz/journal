@@ -1,105 +1,37 @@
-# Journal Up UI
+# Journal Up
 
-Front end for a journaling application that incorporates growth mindset coaching techniques and leverages AI for personalized insights.
+A modern journaling application designed to help you grow and thrive through reflective writing and AI-powered insights. Built with a unique Neobrutalism design style that makes journaling both fun and meaningful.
 
-## Server Repository
+## ✨ What is Journal Up?
 
-[https://github.com/shadcn/journal-up](https://github.com/shadcn/journal-up)
+Journal Up is your personal growth companion that combines the power of journaling with intelligent coaching techniques. Whether you're looking to develop a growth mindset, track your personal development, or simply maintain a daily writing practice, Journal Up provides the perfect platform.
 
-## 🛠 Tech Stack
+## 🎯 Key Features
 
-- [Remix](https://remix.run/docs) - Full stack web framework
-- [React](https://reactjs.org/) - UI library
-- [TailwindCSS](https://tailwindcss.com/) - Utility-first CSS
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-- Custom UI Component Library
-- [Fly.io](https://fly.io/) - Cloud platform for application hosting
+- **Smart Journaling**: Write entries with AI-powered prompts that encourage reflection and growth
+- **Growth Mindset Coaching**: Built-in techniques to help develop a more positive and growth-oriented mindset
+- **Personalized Insights**: AI analysis of your entries to identify patterns and provide meaningful feedback
+- **Beautiful Design**: Unique Neobrutalism design style that makes journaling engaging and enjoyable
+- **Responsive Experience**: Seamlessly works across all your devices
 
-## 🏗 Development
+## 🚀 Getting Started
 
-1. Install dependencies:
+Visit our hosted version at [journalup.app](https://journalup.app) to start your journaling journey today.
+
+## 💻 Local Development
 
 ```bash
+# Install dependencies
 npm install
-```
 
-2. Start the development server:
-
-```bash
+# Start development server
 npm run dev
 ```
-
-## 🧪 Testing
-
-Run the test suite:
-
-```bash
-npm test
-```
-
-## 📦 Building for Production
-
-1. Build the application:
-
-```bash
-npm run build
-```
-
-2. Start the production server:
-
-```bash
-npm start
-```
-
-## 📁 Project Structure
-
-```
-app/
-├── actions/         # Server actions (e.g., theme setting)
-├── components/      # React components
-│   ├── ui/         # Base UI components
-│   ├── Article/    # Content components
-│   ├── Breadcrumb/ # Navigation components
-│   └── Sidebar/    # Layout components
-├── config/         # Application configuration
-├── constants/      # Shared constants
-├── features/       # Feature-based modules
-│   └── theme/      # Theme management
-├── hooks/          # Custom React hooks
-├── layouts/        # Page layouts
-├── lib/           # Utility libraries
-├── routes/        # Application routes
-├── services/      # External service integrations
-├── styles/        # Global styles
-│   └── theme/     # Theme configuration
-├── types/         # TypeScript definitions
-└── utils/         # Utility functions
-```
-
-## 🎯 Key Components
-
-- **ThemeProvider**: Manages application theming with server-side persistence
-- **MainLayout**: Core layout with responsive sidebar
-- **Breadcrumb**: Navigation breadcrumb component
-- **UI Components**: Comprehensive set of Neobrutalism-styled components
-  - Alerts
-  - Avatar
-  - Buttons
-  - Cards
-  - Dialog
-  - Dropdown Menu
-  - Input fields
-  - Sheets
-  - And more...
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
 
 ## 📝 License
 
 MIT
+
+---
+
+Want to contribute? Check out our [Server Repository](https://github.com/shadcn/journal-up)
