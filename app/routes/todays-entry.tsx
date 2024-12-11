@@ -114,7 +114,7 @@ const TherapeuticJournalEntry = () => {
         {/* Writing Section */}
         {showPrompt && (
           <Alert className="p-4 rounded-lg mb-4 flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
+            <Sparkles className="w-5 h-5 flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-medium text-black dark:text-gray-200 mb-1">
                 Today&apos;s Prompt
@@ -123,7 +123,7 @@ const TherapeuticJournalEntry = () => {
             </div>
             <button
               onClick={() => setShowPrompt(false)}
-              className="ml-auto text-blue-600 hover:text-blue-800"
+              className="ml-auto text-gray-700 hover:text-gray-800"
             >
               <ChevronDown className="w-5 h-5" />
             </button>
