@@ -13,6 +13,7 @@ Front end for a journaling application that incorporates growth mindset coaching
 - [TailwindCSS](https://tailwindcss.com/) - Utility-first CSS
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 - Custom UI Component Library
+- [Fly.io](https://fly.io/) - Cloud platform for application hosting
 
 ## 🏗 Development
 
