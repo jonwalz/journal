@@ -94,7 +94,7 @@ export function UserMenu() {
           <DropdownMenuSeparator />
           <Form action="/logout" method="post">
             <DropdownMenuItem asChild>
-              <button className="w-full flex gap-2 items-center">
+              <button className="w-full flex gap-2 items-center cursor-pointer">
                 <LogOut />
                 Log out
               </button>

@@ -5,7 +5,6 @@ import {
   Sparkles,
   Save,
   ChevronDown,
-  Tag,
   Loader2,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -117,10 +116,10 @@ const TherapeuticJournalEntry = () => {
           <Alert className="p-4 rounded-lg mb-4 flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-medium text-blue-900 mb-1">
+              <h3 className="font-medium text-black dark:text-gray-200 mb-1">
                 Today&apos;s Prompt
               </h3>
-              <p className="text-blue-800">{selectedPrompt}</p>
+              <p className="text-black dark:text-gray-300">{selectedPrompt}</p>
             </div>
             <button
               onClick={() => setShowPrompt(false)}
@@ -147,7 +146,7 @@ const TherapeuticJournalEntry = () => {
 
           {/* Footer Tools */}
           <div className="flex justify-between items-center">
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <button
                 type="button"
                 className="flex items-center gap-2 px-4 py-2 dark:text-gray-500 text-gray-700 hover:bg-gray-100 rounded-lg"
@@ -155,11 +154,11 @@ const TherapeuticJournalEntry = () => {
                 <Tag className="w-4 h-4" />
                 <span>Add Tags</span>
               </button>
-            </div>
+            </div> */}
             <Button
               type="submit"
               variant="noShadow"
-              className="flex items-center gap-2 px-4 py-2"
+              className="ml-auto flex items-center gap-2 px-4 py-2 text-black dark:text-white"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

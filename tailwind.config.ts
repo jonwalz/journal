@@ -4,7 +4,6 @@ import type { Config } from "tailwindcss";
 type CustomThemeType = {
   colors: {
     main: string;
-    mainAccent: string;
     overlay: string;
     bg: string;
     text: string;
@@ -46,18 +45,17 @@ const config = {
     extend: {
       colors: {
         main: "#7E8F6C",
-        mainAccent: "#4d80e6",
         overlay: "rgba(0,0,0,0.8)",
         bg: "#dfe5f2",
-        background: "#dfe5f2",
+        background: "#ecefd6",
         foreground: "#fff",
         text: "#000",
         border: "#000",
-        darkBg: "#272933",
+        darkBg: "#252723",
         darkText: "#eeefe9",
         darkBorder: "#000",
         secondaryBlack: "#212121",
-        main50: "#88aaeeb3",
+        main50: "#b3cb9a",
       },
       borderRadius: {
         base: "5px",
