@@ -171,22 +171,6 @@ const TherapeuticJournalEntry = () => {
             </Button>
           </div>
         </Form>
-
-        {/* AI Assistant Preview */}
-        <Alert className="border rounded-lg p-4 bg-secondaryBlack">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5 text-purple-600" />
-            <h2 className="font-semibold text-black dark:text-gray-500">
-              AI Insights Preview
-            </h2>
-          </div>
-          <p className="text-sm text-gray-600">
-            Your AI companion will provide gentle insights and observations
-            after you save your entry. These might include patterns in your
-            emotions, suggested coping strategies, or prompts for deeper
-            reflection.
-          </p>
-        </Alert>
       </div>
     </MainLayout>
   );

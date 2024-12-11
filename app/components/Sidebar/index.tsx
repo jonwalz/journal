@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useLocation, Form, useOutletContext } from "@remix-run/react";
+import { useLocation, Form, useOutletContext, Link } from "@remix-run/react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -67,17 +67,17 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 {sidebarOptions.map((items) => (
                   <SidebarMenuItem key={items.name}>
                     <SidebarMenuSubButton asChild className="translate-x-0">
-                      <a
+                      <Link
                         className={`rounded-none h-auto block border-b-4 border-border dark:border-darkNavBorder p-4 pl-4 font-base text-text/90 dark:text-darkText/90 hover:bg-main50 dark:hover:text-text ${
                           location.pathname === items.href
                             ? "bg-main50 dark:bg-main dark:text-black"
                             : ""
                         }`}
-                        href={items.href}
+                        to={items.href}
                       >
                         {React.createElement(items.icon, { size: 24 })}
                         <span className="text-lg">{items.name}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuItem>
                 ))}

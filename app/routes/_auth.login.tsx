@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { FormField, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -129,9 +129,9 @@ export default function LoginPage() {
 
         <div className="text-center text-sm dark:text-white text-text">
           Don&apos;t have an account?{" "}
-          <a href="/register" className="underline hover:text-gray-800">
+          <Link to="/register" className="underline hover:text-gray-800">
             Sign up
-          </a>
+          </Link>
         </div>
       </div>
     </div>

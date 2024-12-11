@@ -15,7 +15,7 @@ export type JournalType = "growth";
 interface SidebarItem {
   name: string;
   icon: LucideIcon;
-  href?: string;
+  href: string;
 }
 
 export const sidebarOptions: SidebarItem[] = [
