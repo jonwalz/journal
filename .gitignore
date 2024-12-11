@@ -39,3 +39,6 @@ yarn-error.log*
 *.sln
 *.sw?
 run-build.sh
+
+# windsurf rules
+.windsurfrules
