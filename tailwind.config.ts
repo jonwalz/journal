@@ -44,17 +44,17 @@ const config = {
   theme: {
     extend: {
       colors: {
-        main: "#7E8F6C",
+        main: "#3C5E49",
         overlay: "rgba(0,0,0,0.8)",
         bg: "#dfe5f2",
         background: "#ecefd6",
         foreground: "#fff",
         text: "#000",
         border: "#000",
-        darkBg: "#252723",
+        darkBg: "#1C1C1C",
         darkText: "#eeefe9",
         darkBorder: "#000",
-        secondaryBlack: "#212121",
+        secondaryBlack: "#232323",
         main50: "#b3cb9a",
       },
       borderRadius: {
