@@ -116,14 +116,14 @@ const TherapeuticJournalEntry = () => {
           <Alert className="p-4 rounded-lg mb-4 flex items-start gap-3">
             <Sparkles className="w-5 h-5 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-medium text-black dark:text-gray-200 mb-1">
+              <h3 className="font-medium text-black dark:text-white mb-1">
                 Today&apos;s Prompt
               </h3>
-              <p className="text-black dark:text-gray-300">{selectedPrompt}</p>
+              <p className="text-black dark:text-white">{selectedPrompt}</p>
             </div>
             <button
               onClick={() => setShowPrompt(false)}
-              className="ml-auto text-gray-700 hover:text-gray-800"
+              className="ml-auto text-black dark:text-white hover:text-gray-800 dark:hover:text-gray-200"
             >
               <ChevronDown className="w-5 h-5" />
             </button>

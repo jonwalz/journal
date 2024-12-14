@@ -3,9 +3,23 @@ import type { Config } from "tailwindcss";
 // Define custom theme type
 type CustomThemeType = {
   colors: {
-    main: string;
+    main: {
+      DEFAULT: string;
+      50: string;
+      100: string;
+      200: string;
+      300: string;
+      400: string;
+      500: string;
+      600: string;
+      700: string;
+      800: string;
+      900: string;
+    };
     overlay: string;
     bg: string;
+    background: string;
+    foreground: string;
     text: string;
     border: string;
     darkBg: string;
@@ -44,7 +58,19 @@ const config = {
   theme: {
     extend: {
       colors: {
-        main: "#3C5E49",
+        main: {
+          DEFAULT: "#b3cb9a",
+          50: "#b3cb9a",
+          100: "#a3bf87",
+          200: "#93b374",
+          300: "#83a761",
+          400: "#739b4e",
+          500: "#638f3b",
+          600: "#538328",
+          700: "#437715",
+          800: "#336b02",
+          900: "#235f00",
+        },
         overlay: "rgba(0,0,0,0.8)",
         bg: "#dfe5f2",
         background: "#ecefd6",
@@ -55,7 +81,6 @@ const config = {
         darkText: "#eeefe9",
         darkBorder: "#000",
         secondaryBlack: "#232323",
-        main50: "#b3cb9a",
       },
       borderRadius: {
         base: "5px",
