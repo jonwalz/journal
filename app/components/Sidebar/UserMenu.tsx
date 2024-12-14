@@ -4,6 +4,8 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react";
 import {
   Avatar,
@@ -24,10 +26,11 @@ import {
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
 import { userData } from "./data";
-import ToggleThemeButton from "../ToggleThemeButton";
 import { Form } from "@remix-run/react";
+import { useTheme } from "../ThemeProvider";
 
 export function UserMenu() {
+  const { theme, toggleTheme } = useTheme();
   return (
     <SidebarMenuItem>
       <DropdownMenu>
@@ -75,22 +78,30 @@ export function UserMenu() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
+            <DropdownMenuItem className="cursor-pointer">
+              <BadgeCheck className="mr-2" />
               Account
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CreditCard />
+            <DropdownMenuItem className="cursor-pointer">
+              <CreditCard className="mr-2" />
               Billing
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Bell />
+            <DropdownMenuItem className="cursor-pointer">
+              <Bell className="mr-2" />
               Notifications
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <ToggleThemeButton />
+            <DropdownMenuItem
+              onClick={toggleTheme}
+              className="p-2 cursor-pointer"
+            >
+              {theme === "light" ? (
+                <Moon className="mr-2" />
+              ) : (
+                <Sun className="mr-2" />
+              )}
+              {theme === "light" ? "Dark Mode" : "Light Mode"}
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
