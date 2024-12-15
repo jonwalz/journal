@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useLoaderData } from "@remix-run/react";
+import { useOutletContext } from "@remix-run/react";
+import type { RootLoaderData } from "~/root";
 
 export interface IUserInfo {
   id: string;
@@ -17,43 +18,39 @@ export interface IUserInfo {
 }
 
 export function useUserInfo() {
-  const data = useLoaderData<{ userInfo: IUserInfo }>();
-  const [userInfo, setUserInfo] = useState<IUserInfo | null>(
-    data?.userInfo ?? null
-  );
-  const [isLoading, setIsLoading] = useState(!data?.userInfo);
+  const data = useOutletContext<RootLoaderData>();
+  console.log("useUserInfo hook - Context data:", data);
+
+  const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (data?.userInfo) {
-      setUserInfo(data.userInfo);
-      return;
-    }
-
-    const fetchUserInfo = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch("/user-info");
-        if (!response.ok) {
-          throw new Error("Failed to fetch user info");
-        }
-        const userData: IUserInfo = await response.json();
-        setUserInfo(userData);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Unknown error occurred")
-        );
-      } finally {
-        setIsLoading(false);
+    try {
+      if (!data?.userInfo) {
+        console.error("No user info in context data");
+        setError(new Error("No user info available"));
+        return;
       }
-    };
 
-    void fetchUserInfo();
-  }, [data?.userInfo]);
+      // Convert date strings to Date objects
+      const processedUserInfo = {
+        ...data.userInfo,
+        createdAt: new Date(data.userInfo.createdAt),
+        updatedAt: new Date(data.userInfo.updatedAt),
+      };
 
-  return {
-    userInfo,
-    isLoading,
-    error,
-  };
+      setUserInfo(processedUserInfo);
+      setError(null);
+    } catch (err) {
+      console.error("Error processing user info:", err);
+      setError(
+        err instanceof Error ? err : new Error("Failed to process user info")
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [data]);
+
+  return { userInfo, isLoading, error };
 }

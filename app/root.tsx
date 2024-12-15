@@ -10,6 +10,7 @@ import {
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 import type { Journal } from "~/types/journal";
+import type { IUserInfo } from "./hooks/useUserInfo";
 
 import styles from "./tailwind.css?url";
 import { themeCookie } from "./utils/theme.server";
@@ -21,10 +22,12 @@ import {
   destroySession,
 } from "./services/session.server";
 import { Theme } from "./types";
+import { UserInfoService } from "./services/user-info.service";
 
 export type RootLoaderData = {
   theme: Theme;
   journals: Journal[];
+  userInfo: IUserInfo;
 };
 
 export const links: LinksFunction = () => [
@@ -50,11 +53,27 @@ export const loader = async ({ request }: { request: Request }) => {
     url.pathname.startsWith("/login") ||
     url.pathname.startsWith("/register")
   ) {
-    return json<RootLoaderData>({ theme: theme || "light", journals: [] });
+    return json<RootLoaderData>({
+      theme: theme || "light",
+      journals: [],
+      userInfo: {
+        id: "",
+        userId: "",
+        firstName: "",
+        lastName: "",
+        timezone: "",
+        bio: null,
+        growthGoals: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
   }
 
   try {
     const { authToken, sessionToken } = await requireUserSession(request);
+    console.log("Auth tokens:", { authToken, sessionToken });
+
     const response = await JournalService.getJournals({
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -62,9 +81,18 @@ export const loader = async ({ request }: { request: Request }) => {
       },
     });
 
+    const userInfo = await UserInfoService.getUserInfo(request);
+    console.log("Root loader - User info: ", userInfo);
+
+    if (!userInfo) {
+      console.error("User info is null or undefined");
+      throw new Error("Failed to fetch user info");
+    }
+
     return json<RootLoaderData>({
       theme: theme || "light",
       journals: response,
+      userInfo,
     });
   } catch (error) {
     if (error instanceof Response && error.status === 302) {
@@ -82,19 +110,20 @@ export const loader = async ({ request }: { request: Request }) => {
 };
 
 export default function App() {
-  const { theme, journals } = useLoaderData<typeof loader>();
+  const data = useLoaderData<RootLoaderData>();
+  console.log("App component - Loader data:", data);
 
   return (
-    <html lang="en" className={theme}>
+    <html lang="en" className={data.theme}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body className="dark:bg-darkBg">
-        <ThemeProvider theme={theme}>
-          <Outlet context={{ journals }} />
+      <body>
+        <ThemeProvider theme={data.theme}>
+          <Outlet context={data} />
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />

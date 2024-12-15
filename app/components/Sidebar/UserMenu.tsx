@@ -24,16 +24,45 @@ import {
 import { Form } from "@remix-run/react";
 import { useTheme } from "../ThemeProvider";
 import { useUserInfo } from "../../hooks/useUserInfo";
+import { UserInfoForm } from "../UserInfoForm";
+import { useState } from "react";
 
 export function UserMenu() {
   const { theme, toggleTheme } = useTheme();
   const { userInfo, isLoading, error } = useUserInfo();
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
 
+  // Show the form modal if there's an error
   if (error) {
     return (
-      <SidebarMenuItem>
-        <div className="text-sm text-red-500">Failed to load user info</div>
-      </SidebarMenuItem>
+      <>
+        <UserInfoForm
+          open={showUserInfoForm || !!error}
+          onOpenChange={setShowUserInfoForm}
+        />
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            size="lg"
+            onClick={() => setShowUserInfoForm(true)}
+            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          >
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarFallback className="rounded-lg text-black dark:text-white bg-main dark:bg-main-700">
+                GU
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold text-black dark:text-white">
+                Complete Profile
+              </span>
+              <span className="truncate text-xs text-black dark:text-white">
+                Click to setup
+              </span>
+            </div>
+            <ChevronsUpDown className="ml-auto size-4 text-black dark:text-white" />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </>
     );
   }
 
@@ -99,9 +128,12 @@ export function UserMenu() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => setShowUserInfoForm(true)}
+            >
               <BadgeCheck className="mr-2" />
-              Account
+              Edit Profile
             </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer">
               <CreditCard className="mr-2" />
@@ -136,6 +168,10 @@ export function UserMenu() {
           </Form>
         </DropdownMenuContent>
       </DropdownMenu>
+      <UserInfoForm
+        open={showUserInfoForm}
+        onOpenChange={setShowUserInfoForm}
+      />
     </SidebarMenuItem>
   );
 }
