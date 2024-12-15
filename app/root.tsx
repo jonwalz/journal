@@ -15,7 +15,11 @@ import styles from "./tailwind.css?url";
 import { themeCookie } from "./utils/theme.server";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { JournalService } from "./services/journal.service";
-import { requireUserSession } from "./services/session.server";
+import {
+  requireUserSession,
+  getSession,
+  destroySession,
+} from "./services/session.server";
 import { Theme } from "./types";
 
 export type RootLoaderData = {
@@ -63,8 +67,17 @@ export const loader = async ({ request }: { request: Request }) => {
       journals: response,
     });
   } catch (error) {
-    console.error(error);
-    throw redirect("/login");
+    if (error instanceof Response && error.status === 302) {
+      // Pass through the redirect with cookie clearing headers
+      throw error;
+    }
+    // For other errors, clear the session and redirect
+    await getSession(request);
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": await destroySession(request),
+      },
+    });
   }
 };
 

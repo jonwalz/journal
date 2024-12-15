@@ -34,12 +34,14 @@ export function BreadcrumbNavigation({
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem className="hidden md:block">
+        <BreadcrumbItem className="hidden md:block text-text dark:text-darkText">
           <BreadcrumbLink href="#">{journalTitle}</BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator className="hidden md:block" />
+        <BreadcrumbSeparator className="hidden md:block text-text dark:text-darkText" />
         <BreadcrumbItem>
-          <BreadcrumbPage>{getPageTitle(location.pathname)}</BreadcrumbPage>
+          <BreadcrumbPage className="dark:text-darkText text-text">
+            {getPageTitle(location.pathname)}
+          </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

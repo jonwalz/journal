@@ -7,11 +7,7 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../components/ui/avatar";
+import { Avatar, AvatarFallback } from "../../components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,12 +21,37 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
-import { userData } from "./data";
 import { Form } from "@remix-run/react";
 import { useTheme } from "../ThemeProvider";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 export function UserMenu() {
   const { theme, toggleTheme } = useTheme();
+  const { userInfo, isLoading, error } = useUserInfo();
+
+  if (error) {
+    return (
+      <SidebarMenuItem>
+        <div className="text-sm text-red-500">Failed to load user info</div>
+      </SidebarMenuItem>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <SidebarMenuItem>
+        <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-12 w-full rounded-lg" />
+      </SidebarMenuItem>
+    );
+  }
+
+  const displayName = userInfo
+    ? `${userInfo.firstName} ${userInfo.lastName}`
+    : "Guest";
+  const initials = userInfo
+    ? `${userInfo.firstName[0]}${userInfo.lastName[0]}`
+    : "GU";
+
   return (
     <SidebarMenuItem>
       <DropdownMenu>
@@ -40,17 +61,16 @@ export function UserMenu() {
             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={userData.avatar} alt={userData.name} />
               <AvatarFallback className="rounded-lg text-black dark:text-white bg-main dark:bg-main-700">
-                CN
+                {initials}
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold text-black dark:text-white">
-                {userData.name}
+                {displayName}
               </span>
               <span className="truncate text-xs text-black dark:text-white">
-                {userData.email}
+                {userInfo?.timezone || "Loading..."}
               </span>
             </div>
             <ChevronsUpDown className="ml-auto size-4 text-black dark:text-white" />
@@ -65,14 +85,15 @@ export function UserMenu() {
           <DropdownMenuLabel className="p-0 font-normal">
             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={userData.avatar} alt={userData.name} />
                 <AvatarFallback className="rounded-lg text-black dark:text-white bg-main dark:bg-main-700">
-                  CN
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{userData.name}</span>
-                <span className="truncate text-xs">{userData.email}</span>
+                <span className="truncate font-semibold">{displayName}</span>
+                <span className="truncate text-xs">
+                  {userInfo?.timezone || "Loading..."}
+                </span>
               </div>
             </div>
           </DropdownMenuLabel>

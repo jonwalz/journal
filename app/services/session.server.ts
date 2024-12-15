@@ -49,11 +49,17 @@ export async function requireUserSession(
   request: Request,
   redirectTo: string = "/login"
 ) {
-  const authToken = await getAuthToken(request);
-  const sessionToken = await getSessionToken(request);
+  const session = await getSession(request);
+  const authToken = session.get("authToken");
+  const sessionToken = session.get("sessionToken");
 
   if (!authToken || !sessionToken) {
-    throw redirect(redirectTo);
+    // Clear the session if tokens are missing
+    throw redirect(redirectTo, {
+      headers: {
+        "Set-Cookie": await destroySession(request),
+      },
+    });
   }
 
   try {
@@ -65,7 +71,12 @@ export async function requireUserSession(
 
     return { authToken, sessionToken };
   } catch (error) {
-    throw redirect(redirectTo);
+    // Clear the session if token verification fails
+    throw redirect(redirectTo, {
+      headers: {
+        "Set-Cookie": await destroySession(request),
+      },
+    });
   }
 }
 

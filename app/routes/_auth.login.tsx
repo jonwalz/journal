@@ -79,7 +79,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight dark:text-white text-text">
             Welcome back
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm dark:text-white text-text">
             Enter your email to sign in to your account
           </p>
         </div>
