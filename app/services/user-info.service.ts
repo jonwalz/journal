@@ -24,11 +24,10 @@ export class UserInfoService {
       );
 
       const userInfo = response.data;
-      console.log("User info response: ", userInfo);
 
       // Convert string dates to Date objects
-      // userInfo.createdAt = new Date(userInfo.createdAt);
-      // userInfo.updatedAt = new Date(userInfo.updatedAt);
+      userInfo.createdAt = new Date(userInfo.createdAt);
+      userInfo.updatedAt = new Date(userInfo.updatedAt);
 
       return userInfo;
     } catch (error) {

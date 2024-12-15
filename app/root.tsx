@@ -72,7 +72,6 @@ export const loader = async ({ request }: { request: Request }) => {
 
   try {
     const { authToken, sessionToken } = await requireUserSession(request);
-    console.log("Auth tokens:", { authToken, sessionToken });
 
     const response = await JournalService.getJournals({
       headers: {
@@ -82,7 +81,6 @@ export const loader = async ({ request }: { request: Request }) => {
     });
 
     const userInfo = await UserInfoService.getUserInfo(request);
-    console.log("Root loader - User info: ", userInfo);
 
     if (!userInfo) {
       console.error("User info is null or undefined");
@@ -111,7 +109,6 @@ export const loader = async ({ request }: { request: Request }) => {
 
 export default function App() {
   const data = useLoaderData<RootLoaderData>();
-  console.log("App component - Loader data:", data);
 
   return (
     <html lang="en" className={data.theme}>

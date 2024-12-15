@@ -19,7 +19,6 @@ export interface IUserInfo {
 
 export function useUserInfo() {
   const data = useOutletContext<RootLoaderData>();
-  console.log("useUserInfo hook - Context data:", data);
 
   const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
