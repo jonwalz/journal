@@ -5,10 +5,9 @@ import { Button } from "~/components/ui/button";
 import { FormField, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { AuthService } from "~/services/auth.service";
-import { setAuthTokens } from "~/services/session.server";
-import { getSession } from "~/services/session.server";
+import { setAuthTokens, getSession } from "~/services/session.server";
 
-interface ActionData {
+interface ActionDataError {
   errors?: {
     email?: string;
     password?: string;
@@ -34,19 +33,19 @@ export async function action({ request }: ActionFunctionArgs) {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
 
-  const errors: ActionData["errors"] = {};
+  const errors: ActionDataError["errors"] = {};
 
   if (!email) errors.email = "Email is required";
   if (!password) errors.password = "Password is required";
 
-  if (Object.keys(errors).length > 0) {
-    return json<ActionData>({ errors }, { status: 400 });
+  if (Object.keys(errors).length > 0 || !email || !password) {
+    return json<ActionDataError>({ errors }, { status: 400 });
   }
 
   try {
     const response = await AuthService.login({
-      email: email!,
-      password: password!,
+      email: email,
+      password: password,
     });
 
     // Set auth tokens in session
@@ -62,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     });
   } catch (error) {
-    return json<ActionData>(
+    return json<ActionDataError>(
       { errors: { _form: "Invalid email or password" } },
       { status: 401 }
     );
@@ -70,23 +69,23 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function LoginPage() {
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<ActionDataError>();
 
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight dark:text-white text-text">
+          <h1 className="text-2xl font-semibold tracking-tight text-text dark:text-darkText">
             Welcome back
           </h1>
-          <p className="text-sm dark:text-white text-text">
+          <p className="text-sm text-text dark:text-darkText">
             Enter your email to sign in to your account
           </p>
         </div>
 
         <Form method="post" className="space-y-4">
           <FormField>
-            <FormLabel htmlFor="email" className="dark:text-white text-text">
+            <FormLabel htmlFor="email" className="text-text dark:text-darkText">
               Email
             </FormLabel>
             <Input
@@ -94,7 +93,7 @@ export default function LoginPage() {
               type="email"
               name="email"
               placeholder="name@example.com"
-              className="bg-white"
+              className="bg-white dark:bg-secondaryBlack text-text dark:text-darkText border-2 border-border dark:border-darkBorder"
               required
             />
             {actionData?.errors?.email && (
@@ -103,14 +102,17 @@ export default function LoginPage() {
           </FormField>
 
           <FormField>
-            <FormLabel htmlFor="password" className="dark:text-white text-text">
+            <FormLabel
+              htmlFor="password"
+              className="text-text dark:text-darkText"
+            >
               Password
             </FormLabel>
             <Input
               id="password"
               type="password"
               name="password"
-              className="bg-white"
+              className="bg-white dark:bg-secondaryBlack text-text dark:text-darkText border-2 border-border dark:border-darkBorder"
               required
             />
             {actionData?.errors?.password && (
@@ -127,9 +129,12 @@ export default function LoginPage() {
           </Button>
         </Form>
 
-        <div className="text-center text-sm dark:text-white text-text">
+        <div className="text-center text-sm text-text dark:text-darkText">
           Don&apos;t have an account?{" "}
-          <Link to="/register" className="underline hover:text-gray-800">
+          <Link
+            to="/register"
+            className="underline hover:text-gray-800 dark:hover:text-gray-200"
+          >
             Sign up
           </Link>
         </div>

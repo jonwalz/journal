@@ -1,11 +1,11 @@
 import { json, SerializeFrom } from "@remix-run/node";
-import { Form, useFetcher } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { MainLayout } from "~/layouts/MainLayout";
 import { cn } from "~/lib/utils";
-import { ChatService, ChatServiceError } from "~/services/chat.service";
+import { ChatClient, ChatClientError } from "~/services/chat.client";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
@@ -19,24 +19,16 @@ type ActionData = SerializeFrom<
   { message: string; error?: never } | { message?: never; error: string }
 >;
 
-function isSuccessResponse(
-  data: ActionData
-): data is SerializeFrom<{ message: string; error?: never }> {
-  return "message" in data && !("error" in data);
-}
-
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
   const message = formData.get("message") as string;
+  console.log("Received message:", message);
 
   try {
-    const response = await ChatService.sendMessage(message, request);
-    return json<ActionData>({ message: response.message });
+    // This action is now just a fallback for non-JS clients
+    return json<ActionData>({ message: "Message sent" });
   } catch (error) {
-    const errorMessage =
-      error instanceof ChatServiceError
-        ? error.message
-        : "Failed to send message";
+    const errorMessage = "Failed to send message";
     return json<ActionData>({ error: errorMessage }, { status: 500 });
   }
 }
@@ -45,10 +37,11 @@ export default function Chat() {
   const formRef = useRef<HTMLFormElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const fetcher = useFetcher<typeof action>();
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Handle form submission with optimistic UI
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // Handle message sending
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -69,52 +62,103 @@ export default function Chat() {
 
     setMessages((prev) => [...prev, optimisticMessage]);
 
-    // Submit the form using fetcher
-    fetcher.submit(formData, { method: "post" });
-    form.reset();
-  };
+    try {
+      const response = await ChatClient.sendMessage(content);
 
-  // Handle fetcher response
-  useEffect(() => {
-    if (fetcher.data && isSuccessResponse(fetcher.data)) {
-      // This narrows the type
+      // Update the optimistic message
       setMessages((currentMessages) => {
-        const pendingMessageIndex = currentMessages.findIndex(
-          (m) => m.status === "sending"
-        );
-        if (pendingMessageIndex === -1) return currentMessages;
-
         const updatedMessages = [...currentMessages];
-        // Update the pending message status
-        updatedMessages[pendingMessageIndex] = {
-          ...updatedMessages[pendingMessageIndex],
-          status: undefined,
-        };
+        const pendingMessageIndex = updatedMessages.findIndex(
+          (m) => m.id === tempId
+        );
 
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
+        if (pendingMessageIndex !== -1) {
+          updatedMessages[pendingMessageIndex] = {
+            ...updatedMessages[pendingMessageIndex],
+            status: undefined,
+          };
+        }
+
+        // Add the assistant's response
+        updatedMessages.push({
+          id: response.id,
           role: "assistant",
-          content:
-            fetcher.data && isSuccessResponse(fetcher.data)
-              ? fetcher.data.message
-              : "",
-        };
+          content: response.message,
+        });
 
-        updatedMessages.push(assistantMessage);
         return updatedMessages;
       });
+    } catch (err) {
+      console.error("Failed to send message:", err);
+      // Update the optimistic message to show error
+      setMessages((currentMessages) => {
+        const updatedMessages = [...currentMessages];
+        const pendingMessageIndex = updatedMessages.findIndex(
+          (m) => m.id === tempId
+        );
+
+        if (pendingMessageIndex !== -1) {
+          updatedMessages[pendingMessageIndex] = {
+            ...updatedMessages[pendingMessageIndex],
+            status: "error",
+          };
+        }
+
+        return updatedMessages;
+      });
+
+      setError(
+        err instanceof ChatClientError ? err.message : "Failed to send message"
+      );
     }
-  }, [fetcher.data]);
+
+    form.reset();
+  };
 
   // Scroll to bottom when messages change
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const initializeConnection = async () => {
+      if (!mounted) return;
+
+      setIsConnecting(true);
+      try {
+        await ChatClient.sendMessage("");
+        if (mounted) {
+          setIsConnecting(false);
+          setError(null);
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error("Failed to initialize chat connection:", error);
+          setError("Failed to connect to chat server");
+          setIsConnecting(false);
+        }
+      }
+    };
+
+    initializeConnection();
+
+    return () => {
+      mounted = false;
+      ChatClient.cleanup();
+    };
+  }, []);
+
   return (
     <MainLayout>
       <div className="flex flex-col h-[calc(100vh-4rem)] max-w-6xl mx-auto p-4">
         <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+          {error && (
+            <div className="p-4 bg-red-100 text-red-700 rounded-base border-2 border-red-300">
+              {error}
+            </div>
+          )}
           {messages.map((message) => (
             <div
               key={message.id}
@@ -123,13 +167,19 @@ export default function Chat() {
                 message.role === "user"
                   ? "bg-white dark:bg-secondaryBlack ml-auto text-right"
                   : "bg-main mr-auto",
-                message.status === "sending" && "opacity-70"
+                message.status === "sending" && "opacity-70",
+                message.status === "error" && "border-red-500"
               )}
             >
               <div className="prose dark:prose-invert max-w-none">
                 <ReactMarkdown>{message.content}</ReactMarkdown>
                 {message.status === "sending" && (
                   <span className="text-sm text-gray-500 ml-2">Sending...</span>
+                )}
+                {message.status === "error" && (
+                  <span className="text-sm text-red-500 ml-2">
+                    Failed to send
+                  </span>
                 )}
               </div>
             </div>
@@ -143,14 +193,10 @@ export default function Chat() {
             placeholder="Type your message..."
             className="flex-1"
             required
-            disabled={fetcher.state !== "idle"}
+            disabled={isConnecting}
           />
-          <Button
-            type="submit"
-            disabled={fetcher.state !== "idle"}
-            variant="default"
-          >
-            {fetcher.state !== "idle" ? "Sending..." : "Send"}
+          <Button type="submit" disabled={isConnecting} variant="default">
+            {isConnecting ? "Connecting..." : "Send"}
           </Button>
         </Form>
       </div>

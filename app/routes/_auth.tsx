@@ -7,7 +7,7 @@ export default function AuthLayout() {
       <div className="hidden md:flex flex flex-col w-full justify-center items-center border-2 bg-slate-600">
         <img
           className="w-full h-full object-cover"
-          src="/public/login_image.webp"
+          src="/login_image.webp"
           alt="A woman writing in a notebook"
         />
       </div>

@@ -146,15 +146,6 @@ const TherapeuticJournalEntry = () => {
 
           {/* Footer Tools */}
           <div className="flex justify-between items-center">
-            {/* <div className="flex gap-2">
-              <button
-                type="button"
-                className="flex items-center gap-2 px-4 py-2 dark:text-gray-500 text-gray-700 hover:bg-gray-100 rounded-lg"
-              >
-                <Tag className="w-4 h-4" />
-                <span>Add Tags</span>
-              </button>
-            </div> */}
             <Button
               type="submit"
               variant="noShadow"
