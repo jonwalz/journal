@@ -9,6 +9,7 @@ interface IWebSocketConfig {
   onMessage?: (data: unknown) => void;
   onError?: (error: Event) => void;
   onClose?: () => void;
+  headers?: Record<string, string>;
 }
 
 export class WebSocketClient {
@@ -45,7 +46,7 @@ export class WebSocketClient {
     console.log("WebSocketClient: Creating new connection");
 
     this.connectionPromise = new Promise((resolve, reject) => {
-      const wsUrl = `ws://localhost:3030/chat`;
+      const wsUrl = `ws://localhost:3030/ai/chat`;
       console.log("WebSocketClient: Connecting to", wsUrl);
 
       if (this.wsConnection?.readyState === WebSocket.CONNECTING) {
@@ -53,7 +54,15 @@ export class WebSocketClient {
         this.wsConnection.close();
       }
 
-      this.wsConnection = new WebSocket(wsUrl);
+      // Create WebSocket with auth protocol if headers are present
+      const protocols = this.wsConfig.headers?.["Authorization"]
+        ? [
+            `auth.${this.wsConfig.headers["Authorization"]}`,
+            this.wsConfig.headers["x-session-token"],
+          ]
+        : undefined;
+
+      this.wsConnection = new WebSocket(wsUrl, protocols);
 
       // Add connection timeout
       const timeoutId = setTimeout(() => {
@@ -84,7 +93,8 @@ export class WebSocketClient {
         try {
           const data = JSON.parse(event.data as string) as IWebSocketMessage;
           console.log("WebSocketClient: Received message:", data.type);
-          this.wsConfig.onMessage?.(data.payload);
+          console.log("WebSocketClient: Message data:", data);
+          this.wsConfig.onMessage?.(data);
         } catch (error) {
           console.error("WebSocketClient: Failed to parse message:", error);
         }

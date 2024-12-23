@@ -7,6 +7,14 @@ import { MainLayout } from "~/layouts/MainLayout";
 import { cn } from "~/lib/utils";
 import { ChatClient, ChatClientError } from "~/services/chat.client";
 import ReactMarkdown from "react-markdown";
+import { requireUserSession } from "~/services/session.server";
+import type { LoaderFunction } from "@remix-run/node";
+import { useUserInfo } from "~/hooks/useUserInfo";
+
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireUserSession(request);
+  return null;
+};
 
 interface Message {
   id: string;
@@ -39,6 +47,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { userInfo } = useUserInfo();
 
   // Handle message sending
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -63,7 +72,10 @@ export default function Chat() {
     setMessages((prev) => [...prev, optimisticMessage]);
 
     try {
-      const response = await ChatClient.sendMessage(content);
+      if (!userInfo) {
+        throw new Error("User must be logged in to send messages");
+      }
+      const response = await ChatClient.sendMessage(content, userInfo.id);
 
       // Update the optimistic message
       setMessages((currentMessages) => {
@@ -124,11 +136,14 @@ export default function Chat() {
     let mounted = true;
 
     const initializeConnection = async () => {
-      if (!mounted) return;
+      if (!mounted || !userInfo) return;
 
       setIsConnecting(true);
       try {
-        await ChatClient.sendMessage("");
+        if (!userInfo) {
+          throw new Error("User must be logged in to send messages");
+        }
+        await ChatClient.sendMessage("", userInfo.id);
         if (mounted) {
           setIsConnecting(false);
           setError(null);
@@ -148,7 +163,7 @@ export default function Chat() {
       mounted = false;
       ChatClient.cleanup();
     };
-  }, []);
+  }, [userInfo]);
 
   return (
     <MainLayout>

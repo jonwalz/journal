@@ -11,7 +11,10 @@ export interface IChatResponse {
 }
 
 export class ChatClientError extends Error {
-  constructor(message: string, public cause?: unknown) {
+  constructor(
+    message: string,
+    public cause?: unknown
+  ) {
     super(message);
     this.name = "ChatClientError";
   }
@@ -47,7 +50,7 @@ export class ChatClient {
 
     if (!this.isCleaningUp) {
       console.log("ChatClient: Starting new connection");
-      this.connectionPromise = new Promise((resolve, reject) => {
+      this.connectionPromise = new Promise(async (resolve, reject) => {
         try {
           WebSocketClient.connectWebSocket({
             onMessage: (data) => {
@@ -111,16 +114,17 @@ export class ChatClient {
     }
   }
 
-  static async sendMessage(message: string): Promise<IChatResponse> {
+  static async sendMessage(
+    message: string,
+    userId: string
+  ): Promise<IChatResponse> {
+    await this.ensureConnection();
     if (message.trim() === "") {
       console.log("ChatClient: Connection test message");
-      await this.ensureConnection();
       return { id: "connection-test", message: "" };
     }
 
     console.log("ChatClient: Sending message...");
-    await this.ensureConnection();
-
     return new Promise((resolve, reject) => {
       try {
         const messageId = crypto.randomUUID();
@@ -132,6 +136,7 @@ export class ChatClient {
             id: messageId,
             message,
             timestamp: new Date().toISOString(),
+            userId,
           },
         };
 
