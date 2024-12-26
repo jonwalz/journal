@@ -1,5 +1,4 @@
 {
-  "extends": "../../tsconfig.json",
   "include": [
     "**/*.ts",
     "**/*.tsx",
@@ -10,7 +9,7 @@
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["@remix-run/node", "vite/client"],
+    "types": ["@remix-run/node", "vite/client", "bun-types"],
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -21,6 +20,17 @@
     "paths": {
       "~/*": ["./app/*"]
     },
-    "noEmit": true
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "allowUnreachableCode": false
   }
 }
