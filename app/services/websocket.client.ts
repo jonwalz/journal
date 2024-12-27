@@ -46,7 +46,8 @@ export class WebSocketClient {
     console.log("WebSocketClient: Creating new connection");
 
     this.connectionPromise = new Promise((resolve, reject) => {
-      const wsUrl = `ws://localhost:3030/ai/chat`;
+      const serverPort = process.env.PORT ?? 3030;
+      const wsUrl = `ws://localhost:${serverPort}/ai/chat`;
       console.log("WebSocketClient: Connecting to", wsUrl);
 
       if (this.wsConnection?.readyState === WebSocket.CONNECTING) {
