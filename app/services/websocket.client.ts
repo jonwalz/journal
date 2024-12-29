@@ -8,7 +8,7 @@ interface IWebSocketConfig {
   reconnectInterval?: number;
   onMessage?: (data: unknown) => void;
   onError?: (error: Event) => void;
-  onClose?: () => void;
+  onClose?: (event: CloseEvent) => void;
   headers?: Record<string, string>;
 }
 
@@ -46,69 +46,101 @@ export class WebSocketClient {
     console.log("WebSocketClient: Creating new connection");
 
     this.connectionPromise = new Promise((resolve, reject) => {
-      const serverPort = import.meta.env.PORT ?? 3030;
-      const wsUrl = `ws://localhost:${serverPort}/ai/chat`;
-      console.log("WebSocketClient: Connecting to", wsUrl);
+      const getWebSocketUrl = () => {
+        // In development, use localhost with specific port
+        if (import.meta.env.DEV) {
+          const serverPort = import.meta.env.PORT ?? 3030;
+          return `ws://localhost:${serverPort}/ai/chat`;
+        }
+
+        // In production, use Render.com URL
+        const wsProtocol = "wss:";
+        const apiHost = "journal-up.onrender.com";
+
+        console.log("WebSocketClient: Production URL details:", {
+          wsProtocol,
+          apiHost,
+          windowLocation: {
+            protocol: window.location.protocol,
+            host: window.location.host,
+            hostname: window.location.hostname,
+            port: window.location.port,
+            href: window.location.href,
+            origin: window.location.origin,
+          },
+          url: `${wsProtocol}//${apiHost}/ai/chat`,
+        });
+
+        return `${wsProtocol}//${apiHost}/ai/chat`;
+      };
+
+      const wsUrl = getWebSocketUrl();
+      console.log("WebSocketClient: Connecting to", wsUrl, {
+        readyState: this.wsConnection?.readyState,
+        existingUrl: this.wsConnection?.url,
+        currentTime: new Date().toISOString(),
+      });
 
       if (this.wsConnection?.readyState === WebSocket.CONNECTING) {
         console.log("WebSocketClient: Closing existing connecting socket");
         this.wsConnection.close();
       }
 
-      // Create WebSocket with auth protocol if headers are present
-      const protocols = this.wsConfig.headers?.["Authorization"]
-        ? [
-            `auth.${this.wsConfig.headers["Authorization"]}`,
-            this.wsConfig.headers["x-session-token"],
-          ]
-        : undefined;
-
-      this.wsConnection = new WebSocket(wsUrl, protocols);
+      this.wsConnection = new WebSocket(wsUrl);
 
       // Add connection timeout
       const timeoutId = setTimeout(() => {
-        if (this.wsConnection?.readyState !== WebSocket.OPEN) {
+        if (
+          this.wsConnection &&
+          this.wsConnection.readyState === WebSocket.CONNECTING
+        ) {
           console.log(
-            "WebSocketClient: Connection timeout after",
-            this.CONNECTION_TIMEOUT,
-            "ms"
+            "WebSocketClient: Connection timeout, readyState:",
+            this.wsConnection.readyState
           );
-          this.wsConnection?.close();
+          this.wsConnection.close();
           reject(new Error("Connection timeout"));
         }
       }, this.CONNECTION_TIMEOUT);
 
       this.wsConnection.onopen = () => {
+        console.log("WebSocketClient: Connection opened successfully", {
+          url: wsUrl,
+          readyState: this.wsConnection?.readyState,
+          protocol: this.wsConnection?.protocol,
+          extensions: this.wsConnection?.extensions,
+        });
         clearTimeout(timeoutId);
-        console.log("WebSocketClient: Connection opened successfully");
-        this.reconnectAttempt = 0;
         this.isConnecting = false;
-        if (this.reconnectTimeout) {
-          clearTimeout(this.reconnectTimeout);
-          this.reconnectTimeout = null;
-        }
-        resolve(this.wsConnection!);
+        this.connectionPromise = null;
+        this.reconnectAttempt = 0;
+        resolve(this.wsConnection as WebSocket);
       };
 
-      this.wsConnection.onmessage = (event: MessageEvent) => {
+      this.wsConnection.onmessage = (event) => {
+        console.log("WebSocketClient: Message received", {
+          data: event.data,
+          type: event.type,
+          origin: event.origin,
+          lastEventId: event.lastEventId,
+        });
         try {
-          const data = JSON.parse(event.data as string) as IWebSocketMessage;
-          console.log("WebSocketClient: Received message:", data.type);
-          console.log("WebSocketClient: Message data:", data);
+          const data = JSON.parse(event.data);
           this.wsConfig.onMessage?.(data);
         } catch (error) {
-          console.error("WebSocketClient: Failed to parse message:", error);
+          console.error("WebSocketClient: Error parsing message", error);
         }
       };
 
       this.wsConnection.onerror = (error: Event) => {
-        clearTimeout(timeoutId);
         console.error("WebSocketClient: Connection error details:", {
+          error,
           readyState: this.wsConnection?.readyState,
-          error: error,
-          url: wsUrl,
-          reconnectAttempt: this.reconnectAttempt,
+          protocol: this.wsConnection?.protocol,
+          extensions: this.wsConnection?.extensions,
+          url: this.wsConnection?.url,
         });
+        clearTimeout(timeoutId);
         this.isConnecting = false;
         this.connectionPromise = null;
         this.wsConfig.onError?.(error);
@@ -117,17 +149,20 @@ export class WebSocketClient {
       };
 
       this.wsConnection.onclose = (event) => {
-        clearTimeout(timeoutId);
-        console.log("WebSocketClient: Connection closed", {
+        console.error("WebSocketClient: Connection closed with details:", {
           code: event.code,
           reason: event.reason,
           wasClean: event.wasClean,
+          type: event.type,
+          protocols: this.wsConnection?.protocol,
           readyState: this.wsConnection?.readyState,
-          reconnectAttempt: this.reconnectAttempt,
         });
         this.isConnecting = false;
         this.connectionPromise = null;
-        this.wsConfig.onClose?.();
+        this.wsConfig.onClose?.(event);
+        reject(
+          new Error(`WebSocket closed: ${event.reason || "Unknown reason"}`)
+        );
         this.handleReconnection();
       };
     });

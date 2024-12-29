@@ -13,7 +13,7 @@ export interface IChatResponse {
 export class ChatClientError extends Error {
   constructor(
     message: string,
-    public cause?: unknown
+    public override cause?: unknown
   ) {
     super(message);
     this.name = "ChatClientError";
@@ -50,6 +50,14 @@ export class ChatClient {
 
     if (!this.isCleaningUp) {
       console.log("ChatClient: Starting new connection");
+      // Debug cookie information
+      console.log("ChatClient: Available cookies:", {
+        cookies: document.cookie,
+        authSession: document.cookie.split('; ')
+          .find(row => row.startsWith('auth_session=')),
+        allCookies: document.cookie.split('; '),
+      });
+      
       this.connectionPromise = new Promise(async (resolve, reject) => {
         try {
           WebSocketClient.connectWebSocket({
@@ -86,6 +94,13 @@ export class ChatClient {
             },
             reconnectAttempts: 5,
             reconnectInterval: 5000,
+            headers: {
+              // The session cookie should be automatically included by the browser
+              // but we can add additional headers if needed
+              "x-session-token": document.cookie.split('; ')
+                .find(row => row.startsWith('auth_session='))
+                ?.split('=')[1] || '',
+            },
           })
             .then(() => {
               console.log("ChatClient: WebSocket connection established");
