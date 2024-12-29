@@ -1,6 +1,7 @@
 import { getSession } from "./session.server";
 
 const API_BASE_URL = import.meta.env.API_URL || "http://localhost:3030";
+console.log("API_BASE_URL", API_BASE_URL);
 
 export interface RequestOptions extends RequestInit {
   data?: unknown;
