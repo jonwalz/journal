@@ -14,10 +14,6 @@ Journal Up is your personal growth companion that combines the power of journali
 - **Beautiful Design**: Unique Neobrutalism design style that makes journaling engaging and enjoyable
 - **Responsive Experience**: Seamlessly works across all your devices
 
-## 🚀 Getting Started
-
-Visit our hosted version at [journalup.app](https://journalup.app) to start your journaling journey today.
-
 ## 💻 Local Development
 
 ```bash
