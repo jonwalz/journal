@@ -11,8 +11,6 @@ Journal Up is your personal growth companion that combines the power of journali
 - **Smart Journaling**: Write entries with AI-powered prompts that encourage reflection and growth
 - **Growth Mindset Coaching**: Built-in techniques to help develop a more positive and growth-oriented mindset
 - **Personalized Insights**: AI analysis of your entries to identify patterns and provide meaningful feedback
-- **Beautiful Design**: Unique Neobrutalism design style that makes journaling engaging and enjoyable
-- **Responsive Experience**: Seamlessly works across all your devices
 
 ## 💻 Local Development
 
