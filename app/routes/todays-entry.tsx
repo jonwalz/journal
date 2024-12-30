@@ -8,9 +8,9 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Textarea } from "~/components/ui/textarea";
 import { Alert } from "~/components/ui/alerts";
 import { MainLayout } from "~/layouts/MainLayout";
+import { Editor } from "~/components/ui/CustomTextEditor/RichTextEditor";
 import {
   Form,
   useActionData,
@@ -108,7 +108,12 @@ const TherapeuticJournalEntry = () => {
           <Calendar className="w-4 h-4" />
           <span>{new Date().toLocaleDateString()}</span>
           <Clock className="w-4 h-4 ml-2" />
-          <span>{new Date().toLocaleTimeString()}</span>
+          <span>
+            {new Date().toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
         </div>
 
         {/* Writing Section */}
@@ -132,11 +137,7 @@ const TherapeuticJournalEntry = () => {
 
         <Form method="post" className="space-y-4">
           <input type="hidden" name="journalId" value={selectedJournalId} />
-          <Textarea
-            name="content"
-            className="w-full h-64 p-4 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 placeholder:italic"
-            placeholder="Write your thoughts here..."
-          />
+          <Editor />
 
           {actionData?.error && (
             <Alert variant="destructive" className="mt-2">
