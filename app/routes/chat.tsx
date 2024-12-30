@@ -149,6 +149,7 @@ export default function Chat() {
 
   useEffect(() => {
     let mounted = true;
+    let reconnectTimeout: ReturnType<typeof setTimeout>;
 
     const initializeConnection = async () => {
       if (!mounted || !userInfo) return;
@@ -168,6 +169,12 @@ export default function Chat() {
           console.error("Failed to initialize chat connection:", error);
           setError("Failed to connect to chat server");
           setIsConnecting(false);
+          // Attempt to reconnect after 5 seconds
+          reconnectTimeout = setTimeout(() => {
+            if (mounted) {
+              initializeConnection();
+            }
+          }, 5000);
         }
       }
     };
@@ -176,6 +183,7 @@ export default function Chat() {
 
     return () => {
       mounted = false;
+      clearTimeout(reconnectTimeout);
       ChatClient.cleanup();
     };
   }, [userInfo]);
