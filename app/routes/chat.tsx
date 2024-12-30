@@ -5,7 +5,11 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { MainLayout } from "~/layouts/MainLayout";
 import { cn } from "~/lib/utils";
-import { ChatClient, ChatClientError } from "~/services/chat.client";
+import {
+  ChatClient,
+  ChatClientError,
+  IChatMessage,
+} from "~/services/chat.client";
 import ReactMarkdown from "react-markdown";
 import { requireUserSession } from "~/services/session.server";
 import type { LoaderFunction } from "@remix-run/node";
@@ -61,21 +65,32 @@ export default function Chat() {
     // Generate a temporary ID for optimistic updates
     const tempId = `temp-${Date.now()}`;
 
-    // Add optimistic message
-    const optimisticMessage: Message = {
+    // Create message object
+    const newMessage: Message = {
       id: tempId,
       role: "user",
       content,
       status: "sending",
     };
 
-    setMessages((prev) => [...prev, optimisticMessage]);
+    // Add optimistic message
+    setMessages((prev) => [...prev, newMessage]);
 
     try {
       if (!userInfo) {
         throw new Error("User must be logged in to send messages");
       }
-      const response = await ChatClient.sendMessage(content, userInfo.id);
+
+      // Convert messages to IChatMessage array format
+      const messageHistory: IChatMessage[] = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        { role: "user", content },
+      ];
+
+      const response = await ChatClient.sendMessage(
+        messageHistory,
+        userInfo.id
+      );
 
       // Update the optimistic message
       setMessages((currentMessages) => {
@@ -143,7 +158,7 @@ export default function Chat() {
         if (!userInfo) {
           throw new Error("User must be logged in to send messages");
         }
-        await ChatClient.sendMessage("", userInfo.id);
+        await ChatClient.sendMessage([], userInfo.id);
         if (mounted) {
           setIsConnecting(false);
           setError(null);

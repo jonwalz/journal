@@ -1,6 +1,11 @@
 interface IWebSocketMessage {
   type: string;
-  payload: unknown;
+  payload: {
+    id: string;
+    message: string; // Will contain stringified IChatMessage[]
+    timestamp: string;
+    userId: string;
+  };
 }
 
 interface IWebSocketConfig {

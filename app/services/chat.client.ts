@@ -53,11 +53,12 @@ export class ChatClient {
       // Debug cookie information
       console.log("ChatClient: Available cookies:", {
         cookies: document.cookie,
-        authSession: document.cookie.split('; ')
-          .find(row => row.startsWith('auth_session=')),
-        allCookies: document.cookie.split('; '),
+        authSession: document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("auth_session=")),
+        allCookies: document.cookie.split("; "),
       });
-      
+
       this.connectionPromise = new Promise(async (resolve, reject) => {
         try {
           WebSocketClient.connectWebSocket({
@@ -97,9 +98,11 @@ export class ChatClient {
             headers: {
               // The session cookie should be automatically included by the browser
               // but we can add additional headers if needed
-              "x-session-token": document.cookie.split('; ')
-                .find(row => row.startsWith('auth_session='))
-                ?.split('=')[1] || '',
+              "x-session-token":
+                document.cookie
+                  .split("; ")
+                  .find((row) => row.startsWith("auth_session="))
+                  ?.split("=")[1] || "",
             },
           })
             .then(() => {
@@ -130,16 +133,19 @@ export class ChatClient {
   }
 
   static async sendMessage(
-    message: string,
+    messages: IChatMessage[],
     userId: string
   ): Promise<IChatResponse> {
     await this.ensureConnection();
-    if (message.trim() === "") {
+    if (
+      messages.length === 0 ||
+      messages.every((m) => m.content.trim() === "")
+    ) {
       console.log("ChatClient: Connection test message");
       return { id: "connection-test", message: "" };
     }
 
-    console.log("ChatClient: Sending message...");
+    console.log("ChatClient: Sending messages...");
     return new Promise((resolve, reject) => {
       try {
         const messageId = crypto.randomUUID();
@@ -149,7 +155,7 @@ export class ChatClient {
           type: "chat_message",
           payload: {
             id: messageId,
-            message,
+            message: JSON.stringify(messages),
             timestamp: new Date().toISOString(),
             userId,
           },
