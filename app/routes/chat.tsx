@@ -196,7 +196,7 @@ export default function Chat() {
                 "p-4 rounded-base border-2 border-border dark:border-darkBorder max-w-3xl",
                 message.role === "user"
                   ? "bg-white dark:bg-secondaryBlack ml-auto text-right"
-                  : "bg-main mr-auto",
+                  : "bg-main dark:bg-[#1e1e2d] mr-auto",
                 message.status === "sending" && "opacity-70",
                 message.status === "error" && "border-red-500"
               )}
