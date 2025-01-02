@@ -7,7 +7,6 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
   $getRoot,
-  $getSelection,
   $isTextNode,
   DOMConversionMap,
   DOMExportOutput,
@@ -147,7 +146,7 @@ export function Editor({ onChange }: { onChange?: (content: string) => void }) {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="relative bg-white dark:bg-secondaryBlack rounded-b-md">
+      <div className="relative bg-white dark:bg-secondaryBlack rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <ToolbarPlugin />
         <div className="relative min-h-[150px] bg-white dark:bg-secondaryBlack">
           <RichTextPlugin
