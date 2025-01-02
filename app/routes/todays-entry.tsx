@@ -6,6 +6,7 @@ import {
   Save,
   ChevronDown,
   Loader2,
+  X,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Alert } from "~/components/ui/alerts";
@@ -131,7 +132,7 @@ const TherapeuticJournalEntry = () => {
               onClick={() => setShowPrompt(false)}
               className="ml-auto text-black dark:text-white hover:text-gray-800 dark:hover:text-gray-200"
             >
-              <ChevronDown className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
           </Alert>
         )}
