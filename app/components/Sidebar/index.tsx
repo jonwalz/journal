@@ -107,10 +107,9 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-md bg-white dark:bg-secondaryBlack">
           <DialogHeader>
-            <DialogTitle>Create New Journal</DialogTitle>
-            <DialogDescription>
-              Enter a name for your new journal
-            </DialogDescription>
+            <DialogTitle className="text-slate-900 dark:text-white">
+              Create New Journal
+            </DialogTitle>
           </DialogHeader>
           <Form
             method="post"
@@ -127,7 +126,10 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
             className="space-y-4"
           >
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
+              <Label
+                htmlFor="name"
+                className="text-sm font-medium text-slate-900 dark:text-white"
+              >
                 Journal Name
               </Label>
               <Input
@@ -135,7 +137,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 name="name"
                 type="text"
                 required
-                className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-secondaryBlack dark:border-slate-700"
+                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 placeholder="My Journal"
               />
             </div>

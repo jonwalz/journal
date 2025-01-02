@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { FormField, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -70,6 +70,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function LoginPage() {
   const actionData = useActionData<ActionDataError>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
 
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
@@ -124,8 +126,12 @@ export default function LoginPage() {
             <FormMessage>{actionData.errors._form}</FormMessage>
           )}
 
-          <Button type="submit" className="w-full">
-            Sign In
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing in..." : "Sign in"}
           </Button>
         </Form>
 
