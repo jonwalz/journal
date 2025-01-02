@@ -57,7 +57,7 @@ export async function requireUserSession(
     // Clear the session if tokens are missing
     throw redirect(redirectTo, {
       headers: {
-        "Set-Cookie": await destroySession(request),
+        "Set-Cookie": await sessionStorage.destroySession(session),
       },
     });
   }
@@ -74,7 +74,7 @@ export async function requireUserSession(
     // Clear the session if token verification fails
     throw redirect(redirectTo, {
       headers: {
-        "Set-Cookie": await destroySession(request),
+        "Set-Cookie": await sessionStorage.destroySession(session),
       },
     });
   }
@@ -86,9 +86,10 @@ export async function destroySession(request: Request) {
 }
 
 export async function logout(request: Request) {
+  const session = await getSession(request);
   return redirect("/login", {
     headers: {
-      "Set-Cookie": await destroySession(request),
+      "Set-Cookie": await sessionStorage.destroySession(session),
     },
   });
 }

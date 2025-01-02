@@ -19,15 +19,17 @@ import { JournalService } from "./services/journal.service";
 import {
   requireUserSession,
   getSession,
-  destroySession,
+  sessionStorage,
 } from "./services/session.server";
 import { Theme } from "./types";
 import { UserInfoService } from "./services/user-info.service";
+import { getSelectedJournalId } from "./utils/journal.server";
 
 export type RootLoaderData = {
   theme: Theme;
   journals: Journal[];
   userInfo: IUserInfo;
+  selectedJournalId: string | null;
 };
 
 export const links: LinksFunction = () => [
@@ -47,6 +49,7 @@ export const links: LinksFunction = () => [
 export const loader = async ({ request }: { request: Request }) => {
   const theme = await themeCookie.parse(request.headers.get("Cookie"));
   const url = new URL(request.url);
+  const selectedJournalId = await getSelectedJournalId(request);
 
   // Don't require authentication for auth routes
   if (
@@ -56,6 +59,7 @@ export const loader = async ({ request }: { request: Request }) => {
     return json<RootLoaderData>({
       theme: theme || "light",
       journals: [],
+      selectedJournalId: null,
       userInfo: {
         id: "",
         userId: "",
@@ -90,6 +94,7 @@ export const loader = async ({ request }: { request: Request }) => {
     return json<RootLoaderData>({
       theme: theme || "light",
       journals: response,
+      selectedJournalId,
       userInfo,
     });
   } catch (error) {
@@ -98,10 +103,10 @@ export const loader = async ({ request }: { request: Request }) => {
       throw error;
     }
     // For other errors, clear the session and redirect
-    await getSession(request);
+    const session = await getSession(request);
     throw redirect("/login", {
       headers: {
-        "Set-Cookie": await destroySession(request),
+        "Set-Cookie": await sessionStorage.destroySession(session),
       },
     });
   }

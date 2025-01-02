@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { useLocation, Form, useOutletContext, Link } from "@remix-run/react";
+import { useEffect, useRef } from "react";
+import { useLocation, Form, useOutletContext, Link, useNavigate, useFetcher } from "@remix-run/react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -34,18 +35,53 @@ import { Journal } from "~/types/journal";
 
 type ContextType = {
   journals: Journal[];
+  selectedJournalId: string | null;
 };
 
 export const iframeHeight = "800px";
 export const description = "A sidebar that collapses to icons.";
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
-  const { journals } = useOutletContext<ContextType>();
+  const { journals, selectedJournalId } = useOutletContext<ContextType>();
   const location = useLocation();
-  const [activeJournal, setActiveJournal] = useState(journals[0] ?? null);
+  const navigate = useNavigate();
+  const fetcher = useFetcher();
+  const searchParams = new URLSearchParams(location.search);
+  const journalIdFromUrl = searchParams.get("journalId");
+  const lastJournalIdRef = useRef<string | null>(null);
+  
+  // Initialize activeJournal from URL, cookie, or first journal
+  const [activeJournal, setActiveJournal] = useState(
+    journals.find(j => j.id === journalIdFromUrl) || // URL has priority
+    journals.find(j => j.id === selectedJournalId) || // Then cookie
+    journals[0] || // Then first journal
+    null
+  );
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(
     journals.length === 0 ? true : false
   );
+
+  // Update URL and trigger navigation when active journal changes
+  useEffect(() => {
+    if (!activeJournal || activeJournal.id === lastJournalIdRef.current) return;
+    lastJournalIdRef.current = activeJournal.id;
+
+    // Only update URL if we're on a page that needs the journal ID
+    if (location.pathname === "/journals/history") {
+      const newParams = new URLSearchParams(location.search);
+      newParams.set("journalId", activeJournal.id);
+      navigate(`${location.pathname}?${newParams.toString()}`, {
+        replace: true
+      });
+    }
+
+    // Always update the cookie when journal changes using fetcher
+    const formData = new FormData();
+    formData.set("journalId", activeJournal.id);
+    formData.set("_action", "setJournal");
+    fetcher.submit(formData, { method: "post", action: "/set-journal" });
+  }, [activeJournal, location.pathname, navigate, fetcher]);
 
   return (
     <>

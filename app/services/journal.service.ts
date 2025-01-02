@@ -76,38 +76,27 @@ export class JournalService {
     journalId: string,
     content: string,
     options: RequestOptions = {}
-  ): Promise<void> {
+  ): Promise<unknown> {
     try {
-      await ApiClient.post(
+      const response = await ApiClient.post(
         `/journals/${journalId}/entries`,
         {
           content,
         },
         options
       );
+      return response.data;
     } catch (error) {
-      throw new JournalServiceError(
-        `Failed to create entry for journal ${journalId}`,
-        error
-      );
+      throw new JournalServiceError("Failed to create journal entry", error);
     }
   }
 
-  static async getEntries(
-    journalId: string,
-    options: RequestOptions = {}
-  ): Promise<unknown[]> {
+  static async getEntries(journalId: string, options: RequestOptions = {}) {
     try {
-      const response = await ApiClient.get<unknown[]>(
-        `/journals/${journalId}/entries`,
-        options
-      );
+      const response = await ApiClient.get(`/journals/${journalId}/entries`, options);
       return response.data;
     } catch (error) {
-      throw new JournalServiceError(
-        `Failed to get entries for journal ${journalId}`,
-        error
-      );
+      throw new JournalServiceError("Failed to fetch journal entries", error);
     }
   }
 }
