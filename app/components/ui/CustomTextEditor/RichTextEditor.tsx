@@ -24,7 +24,7 @@ import ExampleTheme from "./ExampleTheme";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import { parseAllowedColor, parseAllowedFontSize } from "./styleConfig";
 
-const placeholder = "Enter some rich text...";
+const placeholder = "Enter your thoughts...";
 
 const removeStylesExportDOM = (
   editor: LexicalEditor,

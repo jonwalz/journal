@@ -17,6 +17,7 @@ import {
   useActionData,
   useNavigation,
   useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import { ActionFunctionArgs, json, LoaderFunction } from "@remix-run/node";
 import { JournalService } from "~/services/journal.service";
@@ -28,8 +29,12 @@ type ActionData =
   | { success?: never; error: string };
 
 type LoaderData = {
-  selectedJournalId: string;
   journals: Journal[];
+};
+
+type ContextType = {
+  journals: Journal[];
+  selectedJournalId: string | null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -42,7 +47,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 
   return json<LoaderData>({
-    selectedJournalId: response[0]?.id || "",
     journals: response,
   });
 };
@@ -56,6 +60,13 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!content || typeof content !== "string" || !content.trim()) {
     return json<ActionData>(
       { error: "Please write something before saving" },
+      { status: 400 }
+    );
+  }
+
+  if (!journalId) {
+    return json<ActionData>(
+      { error: "Please select a journal before saving" },
       { status: 400 }
     );
   }
@@ -85,7 +96,7 @@ const TherapeuticJournalEntry = () => {
   const actionData = useActionData<ActionData>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  const { selectedJournalId } = useLoaderData<LoaderData>();
+  const { selectedJournalId } = useOutletContext<ContextType>();
 
   const growthPrompts = [
     "What new skill or knowledge did you work on today, and what did you learn from the experience?",
@@ -101,71 +112,61 @@ const TherapeuticJournalEntry = () => {
 
   return (
     <MainLayout>
-      <div className="container max-w-4xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <h3 className="text-xl font-heading dark:text-white text-text">
-          Today&apos;s Entry
-        </h3>
-        <div className="flex items-center gap-2 text-sm dark:text-gray-500 text-gray-700">
-          <Calendar className="w-4 h-4" />
-          <span>{new Date().toLocaleDateString()}</span>
-          <Clock className="w-4 h-4 ml-2" />
-          <span>
-            {new Date().toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+      <Form
+        method="post"
+        className="container max-w-4xl mx-auto h-full flex flex-col"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>{new Date().toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>{new Date().toLocaleTimeString()}</span>
+            </div>
+          </div>
         </div>
-
-        {/* Writing Section */}
+        <input type="hidden" name="journalId" value={selectedJournalId || ""} />
+        <input type="hidden" name="content" value={content} />
         {showPrompt && (
           <Alert className="p-4 rounded-lg mb-4 flex items-start gap-3">
             <Sparkles className="w-5 h-5 flex-shrink-0 mt-1" />
-            <div>
-              <h3 className="font-medium text-black dark:text-white mb-1">
-                Today&apos;s Prompt
-              </h3>
-              <p className="text-black dark:text-white">{selectedPrompt}</p>
+            <div className="flex-1">
+              <div className="font-medium mb-1">Today&apos;s Prompt</div>
+              <p className="text-sm text-muted-foreground">{selectedPrompt}</p>
             </div>
             <button
+              type="button"
               onClick={() => setShowPrompt(false)}
-              className="ml-auto text-black dark:text-white hover:text-gray-800 dark:hover:text-gray-200"
+              className="text-muted-foreground hover:text-foreground"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </Alert>
         )}
-
-        <Form method="post" className="space-y-4">
-          <input type="hidden" name="journalId" value={selectedJournalId} />
-          <input type="hidden" name="content" value={content} />
-          <Editor onChange={setContent} />
-
-          {actionData?.error && (
-            <Alert variant="destructive" className="mt-2">
-              {actionData.error}
-            </Alert>
-          )}
-
-          {/* Footer Tools */}
-          <div className="flex justify-between items-center">
-            <Button
-              type="submit"
-              variant="noShadow"
-              className="ml-auto flex items-center gap-2 px-4 py-2 text-black dark:text-white"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              <span>{isSubmitting ? "Saving..." : "Save Entry"}</span>
-            </Button>
-          </div>
-        </Form>
-      </div>
+        <Editor onChange={setContent} />
+        {actionData?.error && (
+          <Alert variant="destructive" className="mt-2">
+            {actionData.error}
+          </Alert>
+        )}
+        <div className="flex justify-end mt-4">
+          <Button
+            type="submit"
+            variant="default"
+            disabled={isSubmitting || !content.trim()}
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span className="ml-2">Save Entry</span>
+          </Button>
+        </div>
+      </Form>
     </MainLayout>
   );
 };
