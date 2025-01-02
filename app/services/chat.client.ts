@@ -25,9 +25,17 @@ export class ChatClient {
     string,
     (response: IChatResponse) => void
   > = new Map();
+  private static streamCallbacks: Set<(chunk: string) => void> = new Set();
   private static isInitialized = false;
   private static connectionPromise: Promise<void> | null = null;
   private static isCleaningUp = false;
+
+  static onStreamMessage(callback: (chunk: string) => void) {
+    this.streamCallbacks.add(callback);
+    return () => {
+      this.streamCallbacks.delete(callback);
+    };
+  }
 
   private static async ensureConnection(): Promise<void> {
     console.log("ChatClient: Ensuring connection...");
@@ -48,87 +56,81 @@ export class ChatClient {
       }
     }
 
-    if (!this.isCleaningUp) {
-      console.log("ChatClient: Starting new connection");
-      // Debug cookie information
-      console.log("ChatClient: Available cookies:", {
-        cookies: document.cookie,
-        authSession: document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth_session=")),
-        allCookies: document.cookie.split("; "),
-      });
+    this.connectionPromise = new Promise((resolve, reject) => {
+      WebSocketClient.connectWebSocket({
+        onMessage: (data) => {
+          try {
+            const response = JSON.parse(data as string);
+            console.log("ChatClient: Received message:", response);
 
-      this.connectionPromise = new Promise(async (resolve, reject) => {
-        try {
-          WebSocketClient.connectWebSocket({
-            onMessage: (data) => {
-              console.log("ChatClient: Received message, Data: ", data);
-              const response = data as IChatResponse;
-              const callback = this.messageCallbacks.get(response.id);
+            if (response.isPartial) {
+              // Handle streaming message chunks
+              this.streamCallbacks.forEach((callback) => {
+                callback(response.message);
+              });
+            } else if (response.isComplete) {
+              // Handle complete message
+              const messageId = response.id;
+              const callback = this.messageCallbacks.get(messageId);
               if (callback) {
-                console.log(
-                  "ChatClient: Found callback for message:",
-                  response.id
-                );
-                callback(response);
-                this.messageCallbacks.delete(response.id);
-              } else {
-                console.log(
-                  "ChatClient: No callback found for message:",
-                  response.id
-                );
+                callback({
+                  id: messageId,
+                  message: response.message,
+                });
+                this.messageCallbacks.delete(messageId);
               }
-            },
-            onError: (error) => {
-              console.error("ChatClient: WebSocket error:", error);
-              this.isInitialized = false;
-              this.connectionPromise = null;
-              reject(error);
-            },
-            onClose: () => {
-              if (!this.isCleaningUp) {
-                console.log("ChatClient: WebSocket closed unexpectedly");
-                this.isInitialized = false;
-                this.connectionPromise = null;
+            } else if (response.type === "error") {
+              console.error("ChatClient: Received error:", response);
+              const messageId = response.payload?.id;
+              if (messageId) {
+                const callback = this.messageCallbacks.get(messageId);
+                if (callback) {
+                  callback({
+                    id: messageId,
+                    message: response.payload.message || "Unknown error",
+                  });
+                  this.messageCallbacks.delete(messageId);
+                }
               }
-            },
-            reconnectAttempts: 5,
-            reconnectInterval: 5000,
-            headers: {
-              // The session cookie should be automatically included by the browser
-              // but we can add additional headers if needed
-              "x-session-token":
-                document.cookie
-                  .split("; ")
-                  .find((row) => row.startsWith("auth_session="))
-                  ?.split("=")[1] || "",
-            },
-          })
-            .then(() => {
-              console.log("ChatClient: WebSocket connection established");
-              this.isInitialized = true;
-              resolve();
-            })
-            .catch(reject);
-        } catch (error) {
-          console.error("ChatClient: Failed to initialize connection:", error);
+            }
+          } catch (error) {
+            console.error("ChatClient: Error processing message:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("ChatClient: WebSocket error:", error);
+          reject(new ChatClientError("WebSocket connection failed", error));
+        },
+        onClose: () => {
+          console.log("ChatClient: WebSocket connection closed");
+          this.isInitialized = false;
           this.connectionPromise = null;
-          reject(error);
-        }
-      });
+        },
+      })
+        .then(() => {
+          console.log("ChatClient: WebSocket connection established");
+          this.isInitialized = true;
+          resolve();
+        })
+        .catch((error) => {
+          console.error(
+            "ChatClient: Failed to establish WebSocket connection:",
+            error
+          );
+          reject(
+            new ChatClientError(
+              "Failed to establish WebSocket connection",
+              error
+            )
+          );
+        });
+    });
 
-      try {
-        console.log("ChatClient: Waiting for connection to be ready...");
-        await this.connectionPromise;
-        console.log("ChatClient: Connection ready");
-      } catch (error) {
-        console.error("ChatClient: Connection failed:", error);
-        this.connectionPromise = null;
-        throw error;
-      }
-    } else {
-      console.log("ChatClient: Skipping connection due to cleanup in progress");
+    try {
+      await this.connectionPromise;
+    } catch (error) {
+      this.connectionPromise = null;
+      throw error;
     }
   }
 
@@ -148,7 +150,7 @@ export class ChatClient {
     console.log("ChatClient: Sending messages...");
     return new Promise((resolve, reject) => {
       try {
-        const messageId = crypto.randomUUID();
+        const messageId = window.crypto.randomUUID();
         console.log("ChatClient: Created message ID:", messageId);
 
         const payload = {
@@ -161,40 +163,26 @@ export class ChatClient {
           },
         };
 
-        console.log("ChatClient: Setting up callback for message:", messageId);
         this.messageCallbacks.set(messageId, resolve);
 
         WebSocketClient.sendWebSocketMessage(payload).catch((error) => {
-          console.error("ChatClient: Failed to send message:", error);
           this.messageCallbacks.delete(messageId);
-          this.isInitialized = false;
-          this.connectionPromise = null;
           reject(new ChatClientError("Failed to send message", error));
         });
-
-        // Set a timeout to clean up the callback if no response is received
-        setTimeout(() => {
-          if (this.messageCallbacks.has(messageId)) {
-            console.warn("ChatClient: Message timeout:", messageId);
-            this.messageCallbacks.delete(messageId);
-            reject(new ChatClientError("Message response timeout"));
-          }
-        }, 30000); // 30 second timeout
       } catch (error) {
-        console.error("ChatClient: Error in sendMessage:", error);
-        reject(new ChatClientError("Failed to send message", error));
+        reject(new ChatClientError("Failed to prepare message", error));
       }
     });
   }
 
-  static cleanup(): void {
-    console.log("ChatClient: Starting cleanup");
+  static cleanup() {
+    console.log("ChatClient: Cleaning up...");
     this.isCleaningUp = true;
-    WebSocketClient.closeWebSocket();
     this.messageCallbacks.clear();
+    this.streamCallbacks.clear();
     this.isInitialized = false;
     this.connectionPromise = null;
+    WebSocketClient.cleanup?.();
     this.isCleaningUp = false;
-    console.log("ChatClient: Cleanup complete");
   }
 }

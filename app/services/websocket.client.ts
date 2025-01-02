@@ -2,9 +2,10 @@ interface IWebSocketMessage {
   type: string;
   payload: {
     id: string;
-    message: string; // Will contain stringified IChatMessage[]
+    message: string; // Will contain stringified IChatMessage[] or stream chunk
     timestamp: string;
     userId: string;
+    chunk?: string;
   };
 }
 
@@ -61,30 +62,11 @@ export class WebSocketClient {
         // In production, use Render.com URL
         const wsProtocol = "wss:";
         const apiHost = "journal-up.onrender.com";
-
-        console.log("WebSocketClient: Production URL details:", {
-          wsProtocol,
-          apiHost,
-          windowLocation: {
-            protocol: window.location.protocol,
-            host: window.location.host,
-            hostname: window.location.hostname,
-            port: window.location.port,
-            href: window.location.href,
-            origin: window.location.origin,
-          },
-          url: `${wsProtocol}//${apiHost}/ai/chat`,
-        });
-
         return `${wsProtocol}//${apiHost}/ai/chat`;
       };
 
       const wsUrl = getWebSocketUrl();
-      console.log("WebSocketClient: Connecting to", wsUrl, {
-        readyState: this.wsConnection?.readyState,
-        existingUrl: this.wsConnection?.url,
-        currentTime: new Date().toISOString(),
-      });
+      console.log("WebSocketClient: Connecting to", wsUrl);
 
       if (this.wsConnection?.readyState === WebSocket.CONNECTING) {
         console.log("WebSocketClient: Closing existing connecting socket");
@@ -99,137 +81,85 @@ export class WebSocketClient {
           this.wsConnection &&
           this.wsConnection.readyState === WebSocket.CONNECTING
         ) {
-          console.log(
-            "WebSocketClient: Connection timeout, readyState:",
-            this.wsConnection.readyState
-          );
+          console.log("WebSocketClient: Connection timeout");
           this.wsConnection.close();
-          reject(new Error("Connection timeout"));
+          reject(new Error("WebSocket connection timeout"));
         }
       }, this.CONNECTION_TIMEOUT);
 
       this.wsConnection.onopen = () => {
-        console.log("WebSocketClient: Connection opened successfully", {
-          url: wsUrl,
-          readyState: this.wsConnection?.readyState,
-          protocol: this.wsConnection?.protocol,
-          extensions: this.wsConnection?.extensions,
-        });
+        console.log("WebSocketClient: Connection opened");
         clearTimeout(timeoutId);
         this.isConnecting = false;
-        this.connectionPromise = null;
         this.reconnectAttempt = 0;
-        resolve(this.wsConnection as WebSocket);
-      };
-
-      this.wsConnection.onmessage = (event) => {
-        console.log("WebSocketClient: Message received", {
-          data: event.data,
-          type: event.type,
-          origin: event.origin,
-          lastEventId: event.lastEventId,
-        });
-        try {
-          const data = JSON.parse(event.data);
-          this.wsConfig.onMessage?.(data);
-        } catch (error) {
-          console.error("WebSocketClient: Error parsing message", error);
-        }
-      };
-
-      this.wsConnection.onerror = (error: Event) => {
-        console.error("WebSocketClient: Connection error details:", {
-          error,
-          readyState: this.wsConnection?.readyState,
-          protocol: this.wsConnection?.protocol,
-          extensions: this.wsConnection?.extensions,
-          url: this.wsConnection?.url,
-        });
-        clearTimeout(timeoutId);
-        this.isConnecting = false;
-        this.connectionPromise = null;
-        this.wsConfig.onError?.(error);
-        reject(error);
-        this.handleReconnection();
+        resolve(this.wsConnection!);
       };
 
       this.wsConnection.onclose = (event) => {
-        console.error("WebSocketClient: Connection closed with details:", {
-          code: event.code,
-          reason: event.reason,
-          wasClean: event.wasClean,
-          type: event.type,
-          protocols: this.wsConnection?.protocol,
-          readyState: this.wsConnection?.readyState,
-        });
+        console.log("WebSocketClient: Connection closed", event);
+        clearTimeout(timeoutId);
         this.isConnecting = false;
+        this.wsConnection = null;
         this.connectionPromise = null;
-        this.wsConfig.onClose?.(event);
-        reject(
-          new Error(`WebSocket closed: ${event.reason || "Unknown reason"}`)
-        );
-        this.handleReconnection();
+
+        if (this.wsConfig.onClose) {
+          this.wsConfig.onClose(event);
+        }
+
+        // Attempt to reconnect if not manually closed
+        if (
+          !event.wasClean &&
+          this.reconnectAttempt < (this.wsConfig.reconnectAttempts || 3)
+        ) {
+          console.log("WebSocketClient: Attempting to reconnect...");
+          this.reconnectTimeout = window.setTimeout(() => {
+            this.reconnectAttempt++;
+            this.connectWebSocket(this.wsConfig);
+          }, this.wsConfig.reconnectInterval || 3000);
+        }
+      };
+
+      this.wsConnection.onerror = (error) => {
+        console.error("WebSocketClient: Connection error", error);
+        if (this.wsConfig.onError) {
+          this.wsConfig.onError(error);
+        }
+      };
+
+      this.wsConnection.onmessage = (event) => {
+        if (this.wsConfig.onMessage) {
+          this.wsConfig.onMessage(event.data);
+        }
       };
     });
 
     return this.connectionPromise;
   }
 
-  private static handleReconnection(): void {
-    if (this.wsConnection?.readyState === WebSocket.CONNECTING) {
-      console.log("WebSocketClient: Already attempting to connect");
-      return;
+  static async sendWebSocketMessage(message: IWebSocketMessage): Promise<void> {
+    if (!this.wsConnection || this.wsConnection.readyState !== WebSocket.OPEN) {
+      throw new Error("WebSocket connection not open");
     }
 
-    if (this.reconnectAttempt >= (this.wsConfig.reconnectAttempts ?? 3)) {
-      console.log(
-        "WebSocketClient: Max reconnection attempts reached",
-        this.reconnectAttempt
-      );
-      return;
-    }
+    this.wsConnection.send(JSON.stringify(message));
+  }
 
-    this.reconnectAttempt++;
-    console.log(
-      `WebSocketClient: Attempting reconnection ${this.reconnectAttempt}/${
-        this.wsConfig.reconnectAttempts ?? 3
-      } in ${this.wsConfig.reconnectInterval}ms`
-    );
-
+  static cleanup() {
+    console.log("WebSocketClient: Cleaning up...");
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
     }
 
-    this.reconnectTimeout = window.setTimeout(() => {
-      void this.connectWebSocket(this.wsConfig);
-    }, this.wsConfig.reconnectInterval);
-  }
-
-  static async sendWebSocketMessage(message: IWebSocketMessage): Promise<void> {
-    console.log("WebSocketClient: Attempting to send message:", message.type);
-    const connection = await this.connectWebSocket();
-    if (connection.readyState !== WebSocket.OPEN) {
-      console.error(
-        "WebSocketClient: Connection not open, state:",
-        connection.readyState
-      );
-      throw new Error("WebSocket is not connected");
-    }
-
-    connection.send(JSON.stringify(message));
-    console.log("WebSocketClient: Message sent successfully");
-  }
-
-  static closeWebSocket(): void {
-    if (this.wsConnection && !this.isConnecting) {
-      this.wsConnection.close();
-      this.wsConnection = null;
-      this.connectionPromise = null;
-      this.reconnectAttempt = 0;
-      if (this.reconnectTimeout) {
-        clearTimeout(this.reconnectTimeout);
-        this.reconnectTimeout = null;
+    if (this.wsConnection) {
+      if (this.wsConnection.readyState === WebSocket.OPEN) {
+        this.wsConnection.close(1000, "Cleanup");
       }
+      this.wsConnection = null;
     }
+
+    this.isConnecting = false;
+    this.connectionPromise = null;
+    this.reconnectAttempt = 0;
   }
 }

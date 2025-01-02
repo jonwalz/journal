@@ -24,7 +24,8 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-  status?: "sending" | "error";
+  status?: "sending" | "error" | "streaming" | "receiving";
+  isPartial?: boolean;
 }
 
 type ActionData = SerializeFrom<
@@ -87,53 +88,88 @@ export default function Chat() {
         { role: "user", content },
       ];
 
+      // Create a placeholder for the assistant's response
+      const assistantMessageId = window.crypto.randomUUID();
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: assistantMessageId,
+          role: "assistant",
+          content: "",
+          status: "streaming",
+          isPartial: true,
+        },
+      ]);
+
+      // Set up streaming message handler
+      ChatClient.onStreamMessage((chunk: string) => {
+        setMessages((currentMessages) => {
+          const updatedMessages = [...currentMessages];
+          const streamingMessageIndex = updatedMessages.findIndex(
+            (m) => m.id === assistantMessageId
+          );
+          if (streamingMessageIndex !== -1) {
+            updatedMessages[streamingMessageIndex] = {
+              ...updatedMessages[streamingMessageIndex],
+              content: updatedMessages[streamingMessageIndex].content + chunk,
+              status: "receiving",
+            };
+          }
+          return updatedMessages;
+        });
+      });
+
       const response = await ChatClient.sendMessage(
         messageHistory,
         userInfo.id
       );
 
-      // Update the optimistic message
+      // Update messages once streaming is complete
+      setMessages((currentMessages) => {
+        const updatedMessages = [...currentMessages];
+        const streamingMessageIndex = updatedMessages.findIndex(
+          (m) => m.id === assistantMessageId
+        );
+        if (streamingMessageIndex !== -1) {
+          updatedMessages[streamingMessageIndex] = {
+            ...updatedMessages[streamingMessageIndex],
+            content: response.message,
+            status: undefined,
+            isPartial: false,
+          };
+        }
+        return updatedMessages;
+      });
+
+      // Update the user message status
       setMessages((currentMessages) => {
         const updatedMessages = [...currentMessages];
         const pendingMessageIndex = updatedMessages.findIndex(
           (m) => m.id === tempId
         );
-
         if (pendingMessageIndex !== -1) {
           updatedMessages[pendingMessageIndex] = {
             ...updatedMessages[pendingMessageIndex],
             status: undefined,
           };
         }
-
-        // Add the assistant's response
-        updatedMessages.push({
-          id: response.id,
-          role: "assistant",
-          content: response.message,
-        });
-
         return updatedMessages;
       });
     } catch (err) {
       console.error("Failed to send message:", err);
-      // Update the optimistic message to show error
       setMessages((currentMessages) => {
         const updatedMessages = [...currentMessages];
         const pendingMessageIndex = updatedMessages.findIndex(
           (m) => m.id === tempId
         );
-
         if (pendingMessageIndex !== -1) {
           updatedMessages[pendingMessageIndex] = {
             ...updatedMessages[pendingMessageIndex],
             status: "error",
           };
         }
-
         return updatedMessages;
       });
-
       setError(
         err instanceof ChatClientError ? err.message : "Failed to send message"
       );
@@ -184,7 +220,9 @@ export default function Chat() {
     return () => {
       mounted = false;
       clearTimeout(reconnectTimeout);
-      console.log("Chat component unmounting, cleaning up WebSocket connection");
+      console.log(
+        "Chat component unmounting, cleaning up WebSocket connection"
+      );
       ChatClient.cleanup();
     };
   }, [userInfo]);
@@ -207,13 +245,20 @@ export default function Chat() {
                   ? "bg-white dark:bg-secondaryBlack ml-auto text-right"
                   : "bg-main dark:bg-[#1e1e2d] mr-auto",
                 message.status === "sending" && "opacity-70",
+                message.status === "streaming" && "animate-pulse",
                 message.status === "error" && "border-red-500"
               )}
             >
               <div className="prose dark:prose-invert max-w-none">
-                <ReactMarkdown>{message.content}</ReactMarkdown>
+                <ReactMarkdown>{message.content || " "}</ReactMarkdown>
                 {message.status === "sending" && (
                   <span className="text-sm text-gray-500 ml-2">Sending...</span>
+                )}
+                {message.status === "streaming" && (
+                  <span className="text-sm text-gray-500 ml-2">Thinking...</span>
+                )}
+                {message.status === "receiving" && (
+                  <span className="text-sm text-gray-500 ml-2">▋</span>
                 )}
                 {message.status === "error" && (
                   <span className="text-sm text-red-500 ml-2">
