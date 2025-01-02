@@ -1,4 +1,9 @@
-import { useLoaderData, useOutletContext, useNavigate, useLocation } from "@remix-run/react";
+import {
+  useLoaderData,
+  useOutletContext,
+  useNavigate,
+  useLocation,
+} from "@remix-run/react";
 import { json, type DataFunctionArgs } from "@remix-run/node";
 import { MainLayout } from "~/layouts/MainLayout";
 import { JournalService } from "~/services/journal.service";
@@ -28,7 +33,7 @@ export const loader = async ({ request }: DataFunctionArgs) => {
   const { authToken, sessionToken } = await requireUserSession(request);
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
-  
+
   // Try to get journal ID from URL, fallback to cookie
   let journalId = searchParams.get("journalId");
   if (!journalId) {
@@ -39,12 +44,12 @@ export const loader = async ({ request }: DataFunctionArgs) => {
     return json<LoaderData>({ entries: [], selectedJournalId: null });
   }
 
-  const entries = await JournalService.getEntries(journalId, {
+  const entries = (await JournalService.getEntries(journalId, {
     headers: {
       Authorization: `Bearer ${authToken}`,
       "x-session-token": sessionToken,
     },
-  }) as JournalEntry[];
+  })) as JournalEntry[];
 
   return json<LoaderData>({ entries, selectedJournalId: journalId });
 };
@@ -66,7 +71,7 @@ export default function JournalHistory() {
       const newParams = new URLSearchParams(location.search);
       newParams.set("journalId", selectedJournalId);
       navigate(`${location.pathname}?${newParams.toString()}`, {
-        replace: true
+        replace: true,
       });
     }
   }, [selectedJournalId, location.search, location.pathname, navigate]);
@@ -84,7 +89,7 @@ export default function JournalHistory() {
   if (journals.length === 0) {
     return (
       <MainLayout>
-        <div className="container mx-auto py-8">
+        <div className="container max-w-4xl mx-auto py-8">
           <h1 className="text-3xl font-bold mb-6">Journal Entry History</h1>
           <p className="text-muted-foreground">
             Please create a journal first to view entries.
@@ -96,7 +101,7 @@ export default function JournalHistory() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto py-8">
+      <div className="container max-w-4xl mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">Journal Entry History</h1>
         <div className="rounded-md border">
           <Table>
