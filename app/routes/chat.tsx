@@ -184,6 +184,7 @@ export default function Chat() {
     return () => {
       mounted = false;
       clearTimeout(reconnectTimeout);
+      console.log("Chat component unmounting, cleaning up WebSocket connection");
       ChatClient.cleanup();
     };
   }, [userInfo]);
