@@ -188,13 +188,14 @@ export default function Chat() {
     let reconnectTimeout: ReturnType<typeof setTimeout>;
 
     const initializeConnection = async () => {
-      if (!mounted || !userInfo) return;
+      if (!mounted) return;
+      if (!userInfo) {
+        console.error("User information is not available.");
+        return;
+      }
 
       setIsConnecting(true);
       try {
-        if (!userInfo) {
-          throw new Error("User must be logged in to send messages");
-        }
         await ChatClient.sendMessage([], userInfo.id);
         if (mounted) {
           setIsConnecting(false);
@@ -215,8 +216,12 @@ export default function Chat() {
       }
     };
 
-    initializeConnection();
+    // Initialize connection only when userInfo is available
+    if (userInfo) {
+      initializeConnection();
+    }
 
+    // Cleanup only when component unmounts
     return () => {
       mounted = false;
       clearTimeout(reconnectTimeout);
@@ -225,7 +230,7 @@ export default function Chat() {
       );
       ChatClient.cleanup();
     };
-  }, [userInfo]);
+  }, []); // Empty dependency array - only run on mount/unmount
 
   return (
     <MainLayout>
