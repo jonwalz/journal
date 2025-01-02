@@ -80,6 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const TherapeuticJournalEntry = () => {
   const [showPrompt, setShowPrompt] = useState(true);
+  const [content, setContent] = useState("");
   const actionData = useActionData<ActionData>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -137,7 +138,8 @@ const TherapeuticJournalEntry = () => {
 
         <Form method="post" className="space-y-4">
           <input type="hidden" name="journalId" value={selectedJournalId} />
-          <Editor />
+          <input type="hidden" name="content" value={content} />
+          <Editor onChange={setContent} />
 
           {actionData?.error && (
             <Alert variant="destructive" className="mt-2">

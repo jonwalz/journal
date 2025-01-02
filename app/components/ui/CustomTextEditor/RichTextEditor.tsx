@@ -3,12 +3,16 @@ import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
+  $getRoot,
+  $getSelection,
   $isTextNode,
   DOMConversionMap,
   DOMExportOutput,
   DOMExportOutputMap,
+  EditorState,
   isHTMLElement,
   Klass,
   LexicalEditor,
@@ -119,7 +123,15 @@ const constructImportMap = (): DOMConversionMap => {
   return importMap;
 };
 
-export function Editor() {
+export function Editor({ onChange }: { onChange?: (content: string) => void }) {
+  const handleEditorChange = (editorState: EditorState) => {
+    editorState.read(() => {
+      const root = $getRoot();
+      const html = root.getTextContent();
+      onChange?.(html);
+    });
+  };
+
   const editorConfig = {
     html: {
       export: exportMap,
@@ -135,14 +147,12 @@ export function Editor() {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="relative bg-white dark:bg-gray-800 rounded-b-md">
+      <div className="relative bg-white dark:bg-secondaryBlack rounded-b-md">
         <ToolbarPlugin />
-        <div className="relative min-h-[150px] bg-white dark:bg-gray-800">
+        <div className="relative min-h-[150px] bg-white dark:bg-secondaryBlack">
           <RichTextPlugin
             contentEditable={
-              <ContentEditable
-                className="min-h-[150px] resize-none text-[15px] relative tab-[1] outline-none p-[15px_10px] caret-gray-600 dark:caret-white"
-              />
+              <ContentEditable className="min-h-[150px] resize-none text-[15px] relative tab-[1] outline-none p-[15px_10px] caret-gray-600 dark:caret-white" />
             }
             placeholder={
               <div className="text-gray-400 overflow-hidden absolute truncate top-[15px] left-[10px] text-[15px] select-none pointer-events-none">
@@ -153,6 +163,7 @@ export function Editor() {
           />
           <HistoryPlugin />
           <AutoFocusPlugin />
+          <OnChangePlugin onChange={handleEditorChange} />
         </div>
       </div>
     </LexicalComposer>
