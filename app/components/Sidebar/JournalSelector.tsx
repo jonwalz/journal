@@ -79,7 +79,7 @@ export function JournalSelector({
                 setIsOpen(false);
               }}
             >
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+              <div className="flex size-6 items-center justify-center rounded-md border">
                 <Plus className="size-4" />
               </div>
               <div className="font-medium text-muted-foreground">

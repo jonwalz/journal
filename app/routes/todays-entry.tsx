@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Calendar,
-  Clock,
-  Sparkles,
-  Save,
-  ChevronDown,
-  Loader2,
-  X,
-} from "lucide-react";
+import { Calendar, Clock, Sparkles, Save, Loader2, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Alert } from "~/components/ui/alerts";
 import { MainLayout } from "~/layouts/MainLayout";
@@ -16,7 +8,6 @@ import {
   Form,
   useActionData,
   useNavigation,
-  useLoaderData,
   useOutletContext,
 } from "@remix-run/react";
 import { ActionFunctionArgs, json, LoaderFunction } from "@remix-run/node";

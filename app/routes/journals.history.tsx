@@ -104,9 +104,9 @@ export default function JournalHistory() {
       <div className="container max-w-4xl mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">Journal Entry History</h1>
         <div className="rounded-md border">
-          <Table>
+          <Table className="rounded-b-md">
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-main dark:bg-main-700">
                 <TableHead>Date</TableHead>
                 <TableHead>Content</TableHead>
               </TableRow>
@@ -124,7 +124,7 @@ export default function JournalHistory() {
                 </TableRow>
               ) : (
                 entries.map((entry) => (
-                  <TableRow key={entry.id}>
+                  <TableRow key={entry.id} className="bg-main dark:bg-main-700">
                     <TableCell className="font-medium">
                       {formatDate(entry.createdAt)}
                     </TableCell>
