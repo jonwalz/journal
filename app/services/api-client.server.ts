@@ -1,4 +1,5 @@
 import { getSession } from "./session.server";
+import { ApiError, AuthenticationError } from "~/utils/errors";
 
 const API_BASE_URL = process.env.API_URL || "http://localhost:3030";
 console.log("API_BASE_URL", API_BASE_URL);
@@ -40,7 +41,11 @@ export class ApiClient {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      if (response.status === 401) {
+        throw new AuthenticationError('Your session has expired. Please log in again.');
+      }
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
+      throw new ApiError(response.status, 'API_ERROR', errorData.message || 'An error occurred');
     }
 
     const responseData = await response.json();

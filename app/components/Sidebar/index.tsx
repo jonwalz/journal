@@ -1,7 +1,14 @@
 "use client";
 import * as React from "react";
 import { useEffect, useRef } from "react";
-import { useLocation, Form, useOutletContext, Link, useNavigate, useFetcher } from "@remix-run/react";
+import {
+  useLocation,
+  Form,
+  useOutletContext,
+  Link,
+  useNavigate,
+  useFetcher,
+} from "@remix-run/react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -21,13 +28,7 @@ import { BreadcrumbNavigation } from "../Breadcrumb";
 import { sidebarOptions } from "./constants";
 import { JournalSelector } from "./JournalSelector";
 import { UserMenu } from "./UserMenu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -49,13 +50,13 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   const searchParams = new URLSearchParams(location.search);
   const journalIdFromUrl = searchParams.get("journalId");
   const lastJournalIdRef = useRef<string | null>(null);
-  
+
   // Initialize activeJournal from URL, cookie, or first journal
   const [activeJournal, setActiveJournal] = useState(
-    journals.find(j => j.id === journalIdFromUrl) || // URL has priority
-    journals.find(j => j.id === selectedJournalId) || // Then cookie
-    journals[0] || // Then first journal
-    null
+    journals.find((j) => j.id === journalIdFromUrl) || // URL has priority
+      journals.find((j) => j.id === selectedJournalId) || // Then cookie
+      journals[0] || // Then first journal
+      null
   );
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(
@@ -72,7 +73,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       const newParams = new URLSearchParams(location.search);
       newParams.set("journalId", activeJournal.id);
       navigate(`${location.pathname}?${newParams.toString()}`, {
-        replace: true
+        replace: true,
       });
     }
 

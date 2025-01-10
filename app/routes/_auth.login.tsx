@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation, useSearchParams } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { FormField, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -15,7 +15,7 @@ interface ActionDataError {
   };
 }
 
-export async function loader({ request }: ActionFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const authToken = session.get("authToken");
   const sessionToken = session.get("sessionToken");
@@ -71,7 +71,9 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function LoginPage() {
   const actionData = useActionData<ActionDataError>();
   const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
   const isSubmitting = navigation.state === "submitting";
+  const errorMessage = searchParams.get("error");
 
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
@@ -84,6 +86,12 @@ export default function LoginPage() {
             Enter your email to sign in to your account
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="rounded-md bg-red-50 p-4 text-sm text-red-500 dark:bg-red-900/10 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
 
         <Form method="post" className="space-y-4">
           <FormField>
